@@ -1,175 +1,106 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See LICENSE.txt for license information.
-
 package app
 
 import (
 	"bytes"
-	"os"
+	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/utils/fileutils"
 )
 
-func TestReactionsOfPost(t *testing.T) {
-	th := Setup(t).InitBasic()
-	defer th.TearDown()
-
-	post := th.BasicPost
-	post.HasReactions = true
-	th.BasicUser2.DeleteAt = 1234
-	reactionObject := model.Reaction{
-		UserId:    th.BasicUser.Id,
-		PostId:    post.Id,
-		EmojiName: "emoji",
-		CreateAt:  model.GetMillis(),
-	}
-	reactionObjectDeleted := model.Reaction{
-		UserId:    th.BasicUser2.Id,
-		PostId:    post.Id,
-		EmojiName: "emoji",
-		CreateAt:  model.GetMillis(),
-	}
-
-	th.App.SaveReactionForPost(&reactionObject)
-	th.App.SaveReactionForPost(&reactionObjectDeleted)
-	reactionsOfPost, err := th.App.BuildPostReactions(post.Id)
-	require.Nil(t, err)
-
-	assert.Equal(t, reactionObject.EmojiName, *(*reactionsOfPost)[0].EmojiName)
-}
-
-func TestExportUserNotifyProps(t *testing.T) {
-	th := SetupWithStoreMock(t)
-	defer th.TearDown()
-
-	userNotifyProps := model.StringMap{
-		model.DESKTOP_NOTIFY_PROP:          model.USER_NOTIFY_ALL,
-		model.DESKTOP_SOUND_NOTIFY_PROP:    "true",
-		model.EMAIL_NOTIFY_PROP:            "true",
-		model.PUSH_NOTIFY_PROP:             model.USER_NOTIFY_ALL,
-		model.PUSH_STATUS_NOTIFY_PROP:      model.STATUS_ONLINE,
-		model.CHANNEL_MENTIONS_NOTIFY_PROP: "true",
-		model.COMMENTS_NOTIFY_PROP:         model.COMMENTS_NOTIFY_ROOT,
-		model.MENTION_KEYS_NOTIFY_PROP:     "valid,misc",
-	}
-
-	exportNotifyProps := th.App.buildUserNotifyProps(userNotifyProps)
-
-	require.Equal(t, userNotifyProps[model.DESKTOP_NOTIFY_PROP], *exportNotifyProps.Desktop)
-	require.Equal(t, userNotifyProps[model.DESKTOP_SOUND_NOTIFY_PROP], *exportNotifyProps.DesktopSound)
-	require.Equal(t, userNotifyProps[model.EMAIL_NOTIFY_PROP], *exportNotifyProps.Email)
-	require.Equal(t, userNotifyProps[model.PUSH_NOTIFY_PROP], *exportNotifyProps.Mobile)
-	require.Equal(t, userNotifyProps[model.PUSH_STATUS_NOTIFY_PROP], *exportNotifyProps.MobilePushStatus)
-	require.Equal(t, userNotifyProps[model.CHANNEL_MENTIONS_NOTIFY_PROP], *exportNotifyProps.ChannelTrigger)
-	require.Equal(t, userNotifyProps[model.COMMENTS_NOTIFY_PROP], *exportNotifyProps.CommentsTrigger)
-	require.Equal(t, userNotifyProps[model.MENTION_KEYS_NOTIFY_PROP], *exportNotifyProps.MentionKeys)
-}
-
-func TestExportUserChannels(t *testing.T) {
-	th := Setup(t).InitBasic()
-	defer th.TearDown()
-	channel := th.BasicChannel
-	user := th.BasicUser
-	team := th.BasicTeam
-	channelName := channel.Name
-	notifyProps := model.StringMap{
-		model.DESKTOP_NOTIFY_PROP: model.USER_NOTIFY_ALL,
-		model.PUSH_NOTIFY_PROP:    model.USER_NOTIFY_NONE,
-	}
-	preference := model.Preference{
-		UserId:   user.Id,
-		Category: model.PREFERENCE_CATEGORY_FAVORITE_CHANNEL,
-		Name:     channel.Id,
-		Value:    "true",
-	}
-	var preferences model.Preferences
-	preferences = append(preferences, preference)
-	err := th.App.Srv().Store.Preference().Save(&preferences)
-	require.Nil(t, err)
-
-	th.App.UpdateChannelMemberNotifyProps(notifyProps, channel.Id, user.Id)
-	exportData, err := th.App.buildUserChannelMemberships(user.Id, team.Id)
-	require.Nil(t, err)
-	assert.Equal(t, len(*exportData), 3)
-	for _, data := range *exportData {
-		if *data.Name == channelName {
-			assert.Equal(t, *data.NotifyProps.Desktop, "all")
-			assert.Equal(t, *data.NotifyProps.Mobile, "none")
-			assert.Equal(t, *data.NotifyProps.MarkUnread, "all") // default value
-			assert.True(t, *data.Favorite)
-		} else { // default values
-			assert.Equal(t, *data.NotifyProps.Desktop, "default")
-			assert.Equal(t, *data.NotifyProps.Mobile, "default")
-			assert.Equal(t, *data.NotifyProps.MarkUnread, "all")
-			assert.False(t, *data.Favorite)
-		}
-	}
-}
-
-func TestDirCreationForEmoji(t *testing.T) {
-	th := SetupWithStoreMock(t)
-	defer th.TearDown()
-
-	pathToDir := th.App.createDirForEmoji("test.json", "exported_emoji_test")
-	defer os.Remove(pathToDir)
-	_, err := os.Stat(pathToDir)
-	require.False(t, os.IsNotExist(err), "Directory exported_emoji_test should exist")
-}
-
-func TestCopyEmojiImages(t *testing.T) {
-	th := SetupWithStoreMock(t)
-	defer th.TearDown()
-
-	emoji := &model.Emoji{
-		Id: model.NewId(),
-	}
-
-	// Creating a dir named `exported_emoji_test` in the root of the repo
-	pathToDir := "../exported_emoji_test"
-
-	os.Mkdir(pathToDir, 0777)
-	defer os.RemoveAll(pathToDir)
-
-	filePath := "../data/emoji/" + emoji.Id
-	emojiImagePath := filePath + "/image"
-
-	var _, err = os.Stat(filePath)
-	if os.IsNotExist(err) {
-		os.MkdirAll(filePath, 0777)
-	}
-
-	// Creating a file with the name `image` to copy it to `exported_emoji_test`
-	os.OpenFile(filePath+"/image", os.O_RDONLY|os.O_CREATE, 0777)
-	defer os.RemoveAll(filePath)
-
-	copyError := th.App.copyEmojiImages(emoji.Id, emojiImagePath, pathToDir)
-	require.Nil(t, copyError)
-
-	_, err = os.Stat(pathToDir + "/" + emoji.Id + "/image")
-	require.False(t, os.IsNotExist(err), "File should exist ")
-}
-
-func TestExportCustomEmoji(t *testing.T) {
+func TestImportBulkImport(t *testing.T) {
 	th := Setup(t)
 	defer th.TearDown()
 
-	filePath := "../demo.json"
+	th.App.UpdateConfig(func(cfg *model.Config) { *cfg.ServiceSettings.EnableCustomEmoji = true })
 
-	fileWriter, err := os.Create(filePath)
-	require.Nil(t, err)
-	defer os.Remove(filePath)
+	teamName := model.NewRandomTeamName()
+	channelName := model.NewId()
+	username := model.NewId()
+	username2 := model.NewId()
+	username3 := model.NewId()
+	emojiName := model.NewId()
+	testsDir, _ := fileutils.FindDir("tests")
+	testImage := filepath.Join(testsDir, "test.png")
+	teamTheme1 := `{\"awayIndicator\":\"#DBBD4E\",\"buttonBg\":\"#23A1FF\",\"buttonColor\":\"#FFFFFF\",\"centerChannelBg\":\"#ffffff\",\"centerChannelColor\":\"#333333\",\"codeTheme\":\"github\",\"image\":\"/static/files/a4a388b38b32678e83823ef1b3e17766.png\",\"linkColor\":\"#2389d7\",\"mentionBg\":\"#2389d7\",\"mentionColor\":\"#ffffff\",\"mentionHighlightBg\":\"#fff2bb\",\"mentionHighlightLink\":\"#2f81b7\",\"newMessageSeparator\":\"#FF8800\",\"onlineIndicator\":\"#7DBE00\",\"sidebarBg\":\"#fafafa\",\"sidebarHeaderBg\":\"#3481B9\",\"sidebarHeaderTextColor\":\"#ffffff\",\"sidebarText\":\"#333333\",\"sidebarTextActiveBorder\":\"#378FD2\",\"sidebarTextActiveColor\":\"#111111\",\"sidebarTextHoverBg\":\"#e6f2fa\",\"sidebarUnreadText\":\"#333333\",\"type\":\"Mattermost\"}`
+	teamTheme2 := `{\"awayIndicator\":\"#DBBD4E\",\"buttonBg\":\"#23A100\",\"buttonColor\":\"#EEEEEE\",\"centerChannelBg\":\"#ffffff\",\"centerChannelColor\":\"#333333\",\"codeTheme\":\"github\",\"image\":\"/static/files/a4a388b38b32678e83823ef1b3e17766.png\",\"linkColor\":\"#2389d7\",\"mentionBg\":\"#2389d7\",\"mentionColor\":\"#ffffff\",\"mentionHighlightBg\":\"#fff2bb\",\"mentionHighlightLink\":\"#2f81b7\",\"newMessageSeparator\":\"#FF8800\",\"onlineIndicator\":\"#7DBE00\",\"sidebarBg\":\"#fafafa\",\"sidebarHeaderBg\":\"#3481B9\",\"sidebarHeaderTextColor\":\"#ffffff\",\"sidebarText\":\"#333333\",\"sidebarTextActiveBorder\":\"#378FD2\",\"sidebarTextActiveColor\":\"#222222\",\"sidebarTextHoverBg\":\"#e6f2fa\",\"sidebarUnreadText\":\"#444444\",\"type\":\"Mattermost\"}`
 
-	pathToEmojiDir := "../data/emoji/"
-	dirNameToExportEmoji := "exported_emoji_test"
-	defer os.RemoveAll("../" + dirNameToExportEmoji)
+	// Run bulk import with a valid 1 of everything.
+	data1 := `{"type": "version", "version": 1}
+{"type": "team", "team": {"type": "O", "display_name": "lskmw2d7a5ao7ppwqh5ljchvr4", "name": "` + teamName + `"}}
+{"type": "channel", "channel": {"type": "O", "display_name": "xr6m6udffngark2uekvr3hoeny", "team": "` + teamName + `", "name": "` + channelName + `"}}
+{"type": "user", "user": {"username": "` + username + `", "email": "` + username + `@example.com", "teams": [{"name": "` + teamName + `","theme": "` + teamTheme1 + `", "channels": [{"name": "` + channelName + `"}]}]}}
+{"type": "user", "user": {"username": "` + username2 + `", "email": "` + username2 + `@example.com", "teams": [{"name": "` + teamName + `","theme": "` + teamTheme2 + `", "channels": [{"name": "` + channelName + `"}]}]}}
+{"type": "user", "user": {"username": "` + username3 + `", "email": "` + username3 + `@example.com", "teams": [{"name": "` + teamName + `", "channels": [{"name": "` + channelName + `"}], "delete_at": 123456789016}]}}
+{"type": "post", "post": {"team": "` + teamName + `", "channel": "` + channelName + `", "user": "` + username + `", "message": "Hello World", "create_at": 123456789012, "attachments":[{"path": "` + testImage + `"}]}}
+{"type": "post", "post": {"team": "` + teamName + `", "channel": "` + channelName + `", "user": "` + username3 + `", "message": "Hey Everyone!", "create_at": 123456789013, "attachments":[{"path": "` + testImage + `"}]}}
+{"type": "direct_channel", "direct_channel": {"members": ["` + username + `", "` + username + `"]}}
+{"type": "direct_channel", "direct_channel": {"members": ["` + username + `", "` + username2 + `"]}}
+{"type": "direct_channel", "direct_channel": {"members": ["` + username + `", "` + username2 + `", "` + username3 + `"]}}
+{"type": "direct_post", "direct_post": {"channel_members": ["` + username + `", "` + username + `"], "user": "` + username + `", "message": "Hello Direct Channel to myself", "create_at": 123456789014}}
+{"type": "direct_post", "direct_post": {"channel_members": ["` + username + `", "` + username2 + `"], "user": "` + username + `", "message": "Hello Direct Channel", "create_at": 123456789014}}
+{"type": "direct_post", "direct_post": {"channel_members": ["` + username + `", "` + username2 + `", "` + username3 + `"], "user": "` + username + `", "message": "Hello Group Channel", "create_at": 123456789015}}
+{"type": "emoji", "emoji": {"name": "` + emojiName + `", "image": "` + testImage + `"}}`
 
-	err = th.App.exportCustomEmoji(fileWriter, filePath, pathToEmojiDir, dirNameToExportEmoji)
-	require.Nil(t, err, "should not have failed")
+	err, line := th.App.BulkImport(strings.NewReader(data1), false, 2)
+	require.Nil(t, err, "BulkImport should have succeeded")
+	require.Equal(t, 0, line, "BulkImport line should be 0")
+
+	// Run bulk import using a string that contains a line with invalid json.
+	data2 := `{"type": "version", "version": 1`
+	err, line = th.App.BulkImport(strings.NewReader(data2), false, 2)
+	require.NotNil(t, err, "Should have failed due to invalid JSON on line 1.")
+	require.Equal(t, 1, line, "Should have failed due to invalid JSON on line 1.")
+
+	// Run bulk import using valid JSON but missing version line at the start.
+	data3 := `{"type": "team", "team": {"type": "O", "display_name": "lskmw2d7a5ao7ppwqh5ljchvr4", "name": "` + teamName + `"}}
+{"type": "channel", "channel": {"type": "O", "display_name": "xr6m6udffngark2uekvr3hoeny", "team": "` + teamName + `", "name": "` + channelName + `"}}
+{"type": "user", "user": {"username": "kufjgnkxkrhhfgbrip6qxkfsaa", "email": "kufjgnkxkrhhfgbrip6qxkfsaa@example.com"}}
+{"type": "user", "user": {"username": "bwshaim6qnc2ne7oqkd5b2s2rq", "email": "bwshaim6qnc2ne7oqkd5b2s2rq@example.com", "teams": [{"name": "` + teamName + `", "channels": [{"name": "` + channelName + `"}]}]}}`
+	err, line = th.App.BulkImport(strings.NewReader(data3), false, 2)
+	require.NotNil(t, err, "Should have failed due to missing version line on line 1.")
+	require.Equal(t, 1, line, "Should have failed due to missing version line on line 1.")
+
+	// Run bulk import using a valid and large input and a \r\n line break.
+	t.Run("", func(t *testing.T) {
+		posts := `{"type": "post"` + strings.Repeat(`, "post": {"team": "`+teamName+`", "channel": "`+channelName+`", "user": "`+username+`", "message": "Repeat after me", "create_at": 193456789012}`, 1E4) + "}"
+		data4 := `{"type": "version", "version": 1}
+{"type": "team", "team": {"type": "O", "display_name": "lskmw2d7a5ao7ppwqh5ljchvr4", "name": "` + teamName + `"}}
+{"type": "channel", "channel": {"type": "O", "display_name": "xr6m6udffngark2uekvr3hoeny", "team": "` + teamName + `", "name": "` + channelName + `"}}
+{"type": "user", "user": {"username": "` + username + `", "email": "` + username + `@example.com", "teams": [{"name": "` + teamName + `","theme": "` + teamTheme1 + `", "channels": [{"name": "` + channelName + `"}]}]}}
+{"type": "post", "post": {"team": "` + teamName + `", "channel": "` + channelName + `", "user": "` + username + `", "message": "Hello World", "create_at": 123456789012}}`
+		err, line = th.App.BulkImport(strings.NewReader(data4+"\r\n"+posts), false, 2)
+		require.Nil(t, err, "BulkImport should have succeeded")
+		require.Equal(t, 0, line, "BulkImport line should be 0")
+	})
+
+	t.Run("First item after version without type", func(t *testing.T) {
+		data := `{"type": "version", "version": 1}
+{"name": "custom-emoji-troll", "image": "bulkdata/emoji/trollolol.png"}`
+		err, line := th.App.BulkImport(strings.NewReader(data), false, 2)
+		require.NotNil(t, err, "Should have failed due to invalid type on line 2.")
+		require.Equal(t, 2, line, "Should have failed due to invalid type on line 2.")
+	})
+
+	t.Run("Posts with prop information", func(t *testing.T) {
+		data6 := `{"type": "version", "version": 1}
+{"type": "team", "team": {"type": "O", "display_name": "lskmw2d7a5ao7ppwqh5ljchvr4", "name": "` + teamName + `"}}
+{"type": "channel", "channel": {"type": "O", "display_name": "xr6m6udffngark2uekvr3hoeny", "team": "` + teamName + `", "name": "` + channelName + `"}}
+{"type": "user", "user": {"username": "` + username + `", "email": "` + username + `@example.com", "teams": [{"name": "` + teamName + `","theme": "` + teamTheme1 + `", "channels": [{"name": "` + channelName + `"}]}]}}
+{"type": "post", "post": {"team": "` + teamName + `", "channel": "` + channelName + `", "user": "` + username + `", "message": "Hello World", "create_at": 123456789012, "attachments":[{"path": "` + testImage + `"}], "props":{"attachments":[{"id":0,"fallback":"[February 4th, 2020 2:46 PM] author: fallback","color":"D0D0D0","pretext":"","author_name":"author","author_link":"","title":"","title_link":"","text":"this post has props","fields":null,"image_url":"","thumb_url":"","footer":"Posted in #general","footer_icon":"","ts":"1580823992.000100"}]}}}
+{"type": "direct_channel", "direct_channel": {"members": ["` + username + `", "` + username + `"]}}
+{"type": "direct_post", "direct_post": {"channel_members": ["` + username + `", "` + username + `"], "user": "` + username + `", "message": "Hello Direct Channel to myself", "create_at": 123456789014, "props":{"attachments":[{"id":0,"fallback":"[February 4th, 2020 2:46 PM] author: fallback","color":"D0D0D0","pretext":"","author_name":"author","author_link":"","title":"","title_link":"","text":"this post has props","fields":null,"image_url":"","thumb_url":"","footer":"Posted in #general","footer_icon":"","ts":"1580823992.000100"}]}}}}`
+
+		err, line := th.App.BulkImport(strings.NewReader(data6), false, 2)
+		require.Nil(t, err, "BulkImport should have succeeded")
+		require.Equal(t, 0, line, "BulkImport line should be 0")
+	})
 }
 
 func TestExportAllUsers(t *testing.T) {
