@@ -58,7 +58,7 @@ func (a *App) GetGroupByRemoteID(remoteID string, groupSource model.GroupSource)
 	return group, nil
 }
 
-func (a *App) GetGroupsBySource(groupSource model.GroupSource) ([]*model.Group, *model.AppError) {
+func (a *App) getGroupsBySource(groupSource model.GroupSource) ([]*model.Group, *model.AppError) {
 	groups, err := a.Srv().Store.Group().GetAllBySource(groupSource)
 	if err != nil {
 		return nil, model.NewAppError("GetGroupsBySource", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -415,7 +415,7 @@ func (a *App) DeleteGroupSyncable(groupID string, syncableID string, syncableTyp
 // Typically since will be the last successful group sync time.
 // If includeRemovedMembers is true, then team members who left or were removed from the team will
 // be included; otherwise, they will be excluded.
-func (a *App) TeamMembersToAdd(since int64, teamID *string, includeRemovedMembers bool) ([]*model.UserTeamIDPair, *model.AppError) {
+func (a *App) teamMembersToAdd(since int64, teamID *string, includeRemovedMembers bool) ([]*model.UserTeamIDPair, *model.AppError) {
 	userTeams, err := a.Srv().Store.Group().TeamMembersToAdd(since, teamID, includeRemovedMembers)
 	if err != nil {
 		return nil, model.NewAppError("TeamMembersToAdd", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -430,7 +430,7 @@ func (a *App) TeamMembersToAdd(since int64, teamID *string, includeRemovedMember
 // Typically since will be the last successful group sync time.
 // If includeRemovedMembers is true, then channel members who left or were removed from the channel will
 // be included; otherwise, they will be excluded.
-func (a *App) ChannelMembersToAdd(since int64, channelID *string, includeRemovedMembers bool) ([]*model.UserChannelIDPair, *model.AppError) {
+func (a *App) channelMembersToAdd(since int64, channelID *string, includeRemovedMembers bool) ([]*model.UserChannelIDPair, *model.AppError) {
 	userChannels, err := a.Srv().Store.Group().ChannelMembersToAdd(since, channelID, includeRemovedMembers)
 	if err != nil {
 		return nil, model.NewAppError("ChannelMembersToAdd", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -439,7 +439,7 @@ func (a *App) ChannelMembersToAdd(since int64, channelID *string, includeRemoved
 	return userChannels, nil
 }
 
-func (a *App) TeamMembersToRemove(teamID *string) ([]*model.TeamMember, *model.AppError) {
+func (a *App) teamMembersToRemove(teamID *string) ([]*model.TeamMember, *model.AppError) {
 	teamMembers, err := a.Srv().Store.Group().TeamMembersToRemove(teamID)
 	if err != nil {
 		return nil, model.NewAppError("TeamMembersToRemove", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -448,7 +448,7 @@ func (a *App) TeamMembersToRemove(teamID *string) ([]*model.TeamMember, *model.A
 	return teamMembers, nil
 }
 
-func (a *App) ChannelMembersToRemove(teamID *string) ([]*model.ChannelMember, *model.AppError) {
+func (a *App) channelMembersToRemove(teamID *string) ([]*model.ChannelMember, *model.AppError) {
 	channelMembers, err := a.Srv().Store.Group().ChannelMembersToRemove(teamID)
 	if err != nil {
 		return nil, model.NewAppError("ChannelMembersToRemove", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -530,7 +530,7 @@ func (a *App) TeamMembersMinusGroupMembers(teamID string, groupIDs []string, pag
 	}
 
 	// retrieve groups from DB
-	groups, appErr := a.GetGroupsByIDs(allUsersGroupIDSlice)
+	groups, appErr := a.getGroupsByIDs(allUsersGroupIDSlice)
 	if appErr != nil {
 		return nil, 0, appErr
 	}
@@ -559,7 +559,7 @@ func (a *App) TeamMembersMinusGroupMembers(teamID string, groupIDs []string, pag
 	return users, totalCount, nil
 }
 
-func (a *App) GetGroupsByIDs(groupIDs []string) ([]*model.Group, *model.AppError) {
+func (a *App) getGroupsByIDs(groupIDs []string) ([]*model.Group, *model.AppError) {
 	groups, err := a.Srv().Store.Group().GetByIDs(groupIDs)
 	if err != nil {
 		return nil, model.NewAppError("GetGroupsByIDs", "app.select_error", nil, err.Error(), http.StatusInternalServerError)
@@ -594,7 +594,7 @@ func (a *App) ChannelMembersMinusGroupMembers(channelID string, groupIDs []strin
 	}
 
 	// retrieve groups from DB
-	groups, appErr := a.GetGroupsByIDs(allUsersGroupIDSlice)
+	groups, appErr := a.getGroupsByIDs(allUsersGroupIDSlice)
 	if appErr != nil {
 		return nil, 0, appErr
 	}
@@ -625,7 +625,7 @@ func (a *App) ChannelMembersMinusGroupMembers(channelID string, groupIDs []strin
 
 // UserIsInAdminRoleGroup returns true at least one of the user's groups are configured to set the members as
 // admins in the given syncable.
-func (a *App) UserIsInAdminRoleGroup(userID, syncableID string, syncableType model.GroupSyncableType) (bool, *model.AppError) {
+func (a *App) userIsInAdminRoleGroup(userID, syncableID string, syncableType model.GroupSyncableType) (bool, *model.AppError) {
 	groupIDs, err := a.Srv().Store.Group().AdminRoleGroupsForSyncableMember(userID, syncableID, syncableType)
 	if err != nil {
 		return false, model.NewAppError("UserIsInAdminRoleGroup", "app.select_error", nil, err.Error(), http.StatusInternalServerError)

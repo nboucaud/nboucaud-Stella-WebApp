@@ -43,10 +43,6 @@ func (s *Server) EnvironmentConfig(filter func(reflect.StructField) bool) map[st
 	return s.configStore.GetEnvironmentOverridesWithFilter(filter)
 }
 
-func (a *App) EnvironmentConfig(filter func(reflect.StructField) bool) map[string]interface{} {
-	return a.Srv().EnvironmentConfig(filter)
-}
-
 func (s *Server) UpdateConfig(f func(*model.Config)) {
 	if s.configStore.IsReadOnly() {
 		return
@@ -80,10 +76,6 @@ func (a *App) ClientConfig() map[string]string {
 
 func (a *App) ClientConfigHash() string {
 	return a.ch.ClientConfigHash()
-}
-
-func (a *App) LimitedClientConfig() map[string]string {
-	return a.ch.limitedClientConfig.Load().(map[string]string)
 }
 
 // Registers a function with a given listener to be called when the config is reloaded and may have changed. The function
@@ -364,13 +356,13 @@ func (a *App) ClientConfigWithComputed() map[string]string {
 // LimitedClientConfigWithComputed gets the configuration in a format suitable for sending to the client.
 func (a *App) LimitedClientConfigWithComputed() map[string]string {
 	respCfg := map[string]string{}
-	for k, v := range a.LimitedClientConfig() {
+	for k, v := range a.ch.limitedClientConfig.Load().(map[string]string) {
 		respCfg[k] = v
 	}
 
 	// These properties are not configurable, but nevertheless represent configuration expected
 	// by the client.
-	respCfg["NoAccounts"] = strconv.FormatBool(a.IsFirstUserAccount())
+	respCfg["NoAccounts"] = strconv.FormatBool(a.isFirstUserAccount())
 
 	return respCfg
 }
@@ -396,7 +388,7 @@ func (a *App) GetSanitizedConfig() *model.Config {
 // GetEnvironmentConfig returns a map of configuration keys whose values have been overridden by an environment variable.
 // If filter is not nil and returns false for a struct field, that field will be omitted.
 func (a *App) GetEnvironmentConfig(filter func(reflect.StructField) bool) map[string]interface{} {
-	return a.EnvironmentConfig(filter)
+	return a.Srv().EnvironmentConfig(filter)
 }
 
 // SaveConfig replaces the active configuration, optionally notifying cluster peers.

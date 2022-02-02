@@ -188,12 +188,12 @@ func (a *App) GetSamlMetadataFromIdp(idpMetadataURL string) (*model.SamlMetadata
 		idpMetadataURL = "https://" + idpMetadataURL
 	}
 
-	idpMetadataRaw, err := a.FetchSamlMetadataFromIdp(idpMetadataURL)
+	idpMetadataRaw, err := a.fetchSamlMetadataFromIdp(idpMetadataURL)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := a.BuildSamlMetadataObject(idpMetadataRaw)
+	data, err := a.buildSamlMetadataObject(idpMetadataRaw)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func (a *App) GetSamlMetadataFromIdp(idpMetadataURL string) (*model.SamlMetadata
 	return data, nil
 }
 
-func (a *App) FetchSamlMetadataFromIdp(url string) ([]byte, *model.AppError) {
+func (a *App) fetchSamlMetadataFromIdp(url string) ([]byte, *model.AppError) {
 	resp, err := a.HTTPService().MakeClient(false).Get(url)
 	if err != nil {
 		return nil, model.NewAppError("FetchSamlMetadataFromIdp", "app.admin.saml.invalid_response_from_idp.app_error", nil, err.Error(), http.StatusBadRequest)
@@ -220,7 +220,7 @@ func (a *App) FetchSamlMetadataFromIdp(url string) ([]byte, *model.AppError) {
 	return bodyXML, nil
 }
 
-func (a *App) BuildSamlMetadataObject(idpMetadata []byte) (*model.SamlMetadataResponse, *model.AppError) {
+func (a *App) buildSamlMetadataObject(idpMetadata []byte) (*model.SamlMetadataResponse, *model.AppError) {
 	entityDescriptor := model.EntityDescriptor{}
 	err := xml.Unmarshal(idpMetadata, &entityDescriptor)
 	if err != nil {

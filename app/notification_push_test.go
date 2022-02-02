@@ -1356,7 +1356,7 @@ func TestAllPushNotifications(t *testing.T) {
 		case 1:
 			go func(id string) {
 				defer wg.Done()
-				th.App.UpdateMobileAppBadge(id)
+				th.App.updateMobileAppBadge(id)
 			}(data.user.Id)
 		case 2:
 			go func(sessID, userID string) {
@@ -1422,7 +1422,7 @@ func TestPushNotificationRace(t *testing.T) {
 		// We test all 3 notification types.
 		app.clearPushNotification("currentSessionId", "userId", "channelId", "")
 
-		app.UpdateMobileAppBadge("userId")
+		app.updateMobileAppBadge("userId")
 
 		notification := &PostNotification{
 			Post:    &model.Post{},
@@ -1584,7 +1584,7 @@ func BenchmarkPushNotificationThroughput(b *testing.B) {
 			case 1:
 				go func(id string) {
 					defer wg.Done()
-					th.App.UpdateMobileAppBadge(id)
+					th.App.updateMobileAppBadge(id)
 				}(data.user.Id)
 			case 2:
 				go func(sessID, userID string) {

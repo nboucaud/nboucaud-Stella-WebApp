@@ -81,14 +81,6 @@ func (a *App) GetSharedChannels(page int, perPage int, opts model.SharedChannelF
 	return channels, nil
 }
 
-func (a *App) GetSharedChannelsCount(opts model.SharedChannelFilterOpts) (int64, error) {
-	return a.Srv().Store.SharedChannel().GetAllCount(opts)
-}
-
-func (a *App) UpdateSharedChannel(sc *model.SharedChannel) (*model.SharedChannel, error) {
-	return a.Srv().Store.SharedChannel().Update(sc)
-}
-
 func (a *App) DeleteSharedChannel(channelID string) (bool, error) {
 	return a.Srv().Store.SharedChannel().Delete(channelID)
 }
@@ -102,16 +94,8 @@ func (a *App) SaveSharedChannelRemote(remote *model.SharedChannelRemote) (*model
 	return a.Srv().Store.SharedChannel().SaveRemote(remote)
 }
 
-func (a *App) GetSharedChannelRemote(id string) (*model.SharedChannelRemote, error) {
-	return a.Srv().Store.SharedChannel().GetRemote(id)
-}
-
 func (a *App) GetSharedChannelRemoteByIds(channelID string, remoteID string) (*model.SharedChannelRemote, error) {
 	return a.Srv().Store.SharedChannel().GetRemoteByIds(channelID, remoteID)
-}
-
-func (a *App) GetSharedChannelRemotes(opts model.SharedChannelRemoteFilterOpts) ([]*model.SharedChannelRemote, error) {
-	return a.Srv().Store.SharedChannel().GetRemotes(opts)
 }
 
 // HasRemote returns whether a given channelID is present in the channel remotes or not.
@@ -131,10 +115,6 @@ func (a *App) GetRemoteClusterForUser(remoteID string, userID string) (*model.Re
 		}
 	}
 	return rc, nil
-}
-
-func (a *App) UpdateSharedChannelRemoteCursor(id string, cursor model.GetPostsSinceForSyncCursor) error {
-	return a.Srv().Store.SharedChannel().UpdateRemoteCursor(id, cursor)
 }
 
 func (a *App) DeleteSharedChannelRemote(id string) (bool, error) {

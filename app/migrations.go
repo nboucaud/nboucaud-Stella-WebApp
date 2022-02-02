@@ -18,11 +18,6 @@ const SystemConsoleRolesCreationMigrationKey = "SystemConsoleRolesCreationMigrat
 const ContentExtractionConfigDefaultTrueMigrationKey = "ContentExtractionConfigDefaultTrueMigrationComplete"
 const PlaybookRolesCreationMigrationKey = "PlaybookRolesCreationMigrationComplete"
 
-// This function migrates the default built in roles from code/config to the database.
-func (a *App) DoAdvancedPermissionsMigration() {
-	a.Srv().doAdvancedPermissionsMigration()
-}
-
 func (s *Server) doAdvancedPermissionsMigration() {
 	// If the migration is already marked as completed, don't do it again.
 	if _, err := s.Store.System().GetByName(model.AdvancedPermissionsMigrationKey); err == nil {
@@ -92,10 +87,6 @@ func (a *App) SetPhase2PermissionsMigrationStatus(isComplete bool) error {
 	return nil
 }
 
-func (a *App) DoEmojisPermissionsMigration() {
-	a.Srv().doEmojisPermissionsMigration()
-}
-
 func (s *Server) doEmojisPermissionsMigration() {
 	// If the migration is already marked as completed, don't do it again.
 	if _, err := s.Store.System().GetByName(EmojisPermissionsMigrationKey); err == nil {
@@ -147,10 +138,6 @@ func (s *Server) doEmojisPermissionsMigration() {
 	if err := s.Store.System().Save(&system); err != nil {
 		mlog.Critical("Failed to mark emojis permissions migration as completed.", mlog.Err(err))
 	}
-}
-
-func (a *App) DoGuestRolesCreationMigration() {
-	a.Srv().doGuestRolesCreationMigration()
 }
 
 func (s *Server) doGuestRolesCreationMigration() {
@@ -240,10 +227,6 @@ func (s *Server) doGuestRolesCreationMigration() {
 	if err := s.Store.System().Save(&system); err != nil {
 		mlog.Critical("Failed to mark guest roles creation migration as completed.", mlog.Err(err))
 	}
-}
-
-func (a *App) DoSystemConsoleRolesCreationMigration() {
-	a.Srv().doSystemConsoleRolesCreationMigration()
 }
 
 func (s *Server) doSystemConsoleRolesCreationMigration() {

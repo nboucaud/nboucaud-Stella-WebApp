@@ -82,10 +82,6 @@ func newWebHub(s *Server) *Hub {
 	}
 }
 
-func (a *App) TotalWebsocketConnections() int {
-	return a.Srv().TotalWebsocketConnections()
-}
-
 // HubStart starts all the hubs.
 func (s *Server) HubStart() {
 	// Total number of hubs is twice the number of CPUs.
@@ -145,8 +141,8 @@ func (a *App) HubRegister(webConn *WebConn) {
 	}
 }
 
-// HubUnregister unregisters a connection from a hub.
-func (a *App) HubUnregister(webConn *WebConn) {
+// hubUnregister unregisters a connection from a hub.
+func (a *App) hubUnregister(webConn *WebConn) {
 	hub := a.GetHubForUserId(webConn.UserId)
 	if hub != nil {
 		if metrics := a.Metrics(); metrics != nil {
@@ -273,7 +269,7 @@ func (a *App) invalidateCacheForUserTeams(userID string) {
 }
 
 // UpdateWebConnUserActivity sets the LastUserActivityAt of the hub for the given session.
-func (a *App) UpdateWebConnUserActivity(session model.Session, activityAt int64) {
+func (a *App) updateWebConnUserActivity(session model.Session, activityAt int64) {
 	hub := a.GetHubForUserId(session.UserId)
 	if hub != nil {
 		hub.UpdateActivity(session.UserId, session.Token, activityAt)
@@ -289,7 +285,7 @@ func (a *App) SessionIsRegistered(session model.Session) bool {
 	return false
 }
 
-func (a *App) CheckWebConn(userID, connectionID string) *CheckConnResult {
+func (a *App) checkWebConn(userID, connectionID string) *CheckConnResult {
 	hub := a.GetHubForUserId(userID)
 	if hub != nil {
 		return hub.CheckConn(userID, connectionID)
@@ -490,9 +486,9 @@ func (h *Hub) Start() {
 					}
 				}
 
-				if appInstance.IsUserAway(latestActivity) {
+				if appInstance.isUserAway(latestActivity) {
 					h.srv.Go(func() {
-						appInstance.SetStatusLastActivityAt(webConn.UserId, latestActivity)
+						appInstance.setStatusLastActivityAt(webConn.UserId, latestActivity)
 					})
 				}
 			case userID := <-h.invalidateUser:

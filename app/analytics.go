@@ -151,7 +151,7 @@ func (a *App) GetAnalytics(name string, teamID string) (model.AnalyticsRows, *mo
 				return nil, err2
 			}
 
-			totalSockets := a.TotalWebsocketConnections()
+			totalSockets := a.Srv().TotalWebsocketConnections()
 			totalMasterDb := a.Srv().Store.TotalMasterDbConnections()
 			totalReadDb := a.Srv().Store.TotalReadDbConnections()
 
@@ -166,7 +166,7 @@ func (a *App) GetAnalytics(name string, teamID string) (model.AnalyticsRows, *mo
 			rows[7].Value = float64(totalReadDb)
 
 		} else {
-			rows[5].Value = float64(a.TotalWebsocketConnections())
+			rows[5].Value = float64(a.Srv().TotalWebsocketConnections())
 			rows[6].Value = float64(a.Srv().Store.TotalMasterDbConnections())
 			rows[7].Value = float64(a.Srv().Store.TotalReadDbConnections())
 		}
@@ -305,21 +305,6 @@ func (a *App) GetAnalytics(name string, teamID string) (model.AnalyticsRows, *mo
 	}
 
 	return nil, nil
-}
-
-func (a *App) GetRecentlyActiveUsersForTeam(teamID string) (map[string]*model.User, *model.AppError) {
-	users, err := a.Srv().Store.User().GetRecentlyActiveUsersForTeam(teamID, 0, 100, nil)
-	if err != nil {
-		return nil, model.NewAppError("GetRecentlyActiveUsersForTeam", "app.user.get_recently_active_users.app_error", nil, err.Error(), http.StatusInternalServerError)
-	}
-
-	userMap := make(map[string]*model.User)
-
-	for _, user := range users {
-		userMap[user.Id] = user
-	}
-
-	return userMap, nil
 }
 
 func (a *App) GetRecentlyActiveUsersForTeamPage(teamID string, page, perPage int, asAdmin bool, viewRestrictions *model.ViewUsersRestrictions) ([]*model.User, *model.AppError) {

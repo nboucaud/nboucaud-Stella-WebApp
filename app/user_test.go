@@ -41,7 +41,7 @@ func TestCreateOAuthUser(t *testing.T) {
 		js, jsonErr := json.Marshal(glUser)
 		require.NoError(t, jsonErr)
 
-		user, err := th.App.CreateOAuthUser(th.Context, model.UserAuthServiceGitlab, bytes.NewReader(js), th.BasicTeam.Id, nil)
+		user, err := th.App.createOAuthUser(th.Context, model.UserAuthServiceGitlab, bytes.NewReader(js), th.BasicTeam.Id, nil)
 		require.Nil(t, err)
 
 		require.Equal(t, glUser.Username, user.Username, "usernames didn't match")
@@ -69,7 +69,7 @@ func TestCreateOAuthUser(t *testing.T) {
 		assert.Equal(t, dbUser.Id, s)
 
 		// data passed doesn't matter as return is mocked
-		_, err := th.App.CreateOAuthUser(th.Context, model.ServiceOffice365, strings.NewReader("{}"), th.BasicTeam.Id, nil)
+		_, err := th.App.createOAuthUser(th.Context, model.ServiceOffice365, strings.NewReader("{}"), th.BasicTeam.Id, nil)
 		assert.Nil(t, err)
 		u, er := th.App.Srv().Store.User().GetByEmail(dbUser.Email)
 		assert.NoError(t, er)
@@ -79,7 +79,7 @@ func TestCreateOAuthUser(t *testing.T) {
 
 	t.Run("user creation disabled", func(t *testing.T) {
 		*th.App.Config().TeamSettings.EnableUserCreation = false
-		_, err := th.App.CreateOAuthUser(th.Context, model.UserAuthServiceGitlab, strings.NewReader("{}"), th.BasicTeam.Id, nil)
+		_, err := th.App.createOAuthUser(th.Context, model.UserAuthServiceGitlab, strings.NewReader("{}"), th.BasicTeam.Id, nil)
 		require.NotNil(t, err, "should have failed - user creation disabled")
 	})
 }
@@ -272,7 +272,7 @@ func TestUpdateOAuthUserAttrs(t *testing.T) {
 			data := bytes.NewReader(gitlabUser)
 
 			user = getUserFromDB(th.App, user.Id, t)
-			th.App.UpdateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
+			th.App.updateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
 			user = getUserFromDB(th.App, user.Id, t)
 
 			require.Equal(t, gitlabUserObj.Username, user.Username, "user's username is not updated")
@@ -285,7 +285,7 @@ func TestUpdateOAuthUserAttrs(t *testing.T) {
 			data := bytes.NewReader(gitlabUser)
 
 			user = getUserFromDB(th.App, user.Id, t)
-			th.App.UpdateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
+			th.App.updateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
 			user = getUserFromDB(th.App, user.Id, t)
 
 			require.NotEqual(t, gitlabUserObj.Username, user.Username, "user's username is updated though there already exists another user with the same username")
@@ -299,7 +299,7 @@ func TestUpdateOAuthUserAttrs(t *testing.T) {
 			data := bytes.NewReader(gitlabUser)
 
 			user = getUserFromDB(th.App, user.Id, t)
-			th.App.UpdateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
+			th.App.updateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
 			user = getUserFromDB(th.App, user.Id, t)
 
 			require.Equal(t, gitlabUserObj.Email, user.Email, "user's email is not updated")
@@ -314,7 +314,7 @@ func TestUpdateOAuthUserAttrs(t *testing.T) {
 			data := bytes.NewReader(gitlabUser)
 
 			user = getUserFromDB(th.App, user.Id, t)
-			th.App.UpdateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
+			th.App.updateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
 			user = getUserFromDB(th.App, user.Id, t)
 
 			require.NotEqual(t, gitlabUserObj.Email, user.Email, "user's email is updated though there already exists another user with the same email")
@@ -327,7 +327,7 @@ func TestUpdateOAuthUserAttrs(t *testing.T) {
 		data := bytes.NewReader(gitlabUser)
 
 		user = getUserFromDB(th.App, user.Id, t)
-		th.App.UpdateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
+		th.App.updateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
 		user = getUserFromDB(th.App, user.Id, t)
 
 		require.Equal(t, "Updated", user.FirstName, "user's first name is not updated")
@@ -339,7 +339,7 @@ func TestUpdateOAuthUserAttrs(t *testing.T) {
 		data := bytes.NewReader(gitlabUser)
 
 		user = getUserFromDB(th.App, user.Id, t)
-		th.App.UpdateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
+		th.App.updateOAuthUserAttrs(data, user, gitlabProvider, "gitlab", nil)
 		user = getUserFromDB(th.App, user.Id, t)
 
 		require.Equal(t, "Lastname", user.LastName, "user's last name is not updated")
@@ -561,7 +561,7 @@ func createGitlabUser(t *testing.T, a *App, c *request.Context, id int64, userna
 	var user *model.User
 	var err *model.AppError
 
-	user, err = a.CreateOAuthUser(c, "gitlab", bytes.NewReader(gitlabUser), "", nil)
+	user, err = a.createOAuthUser(c, "gitlab", bytes.NewReader(gitlabUser), "", nil)
 	require.Nil(t, err, "unable to create the user", err)
 
 	return user, gitlabUserObj
@@ -916,7 +916,7 @@ func TestPermanentDeleteUser(t *testing.T) {
 
 	b := []byte("testimage")
 
-	finfo, err := th.App.DoUploadFile(th.Context, time.Now(), th.BasicTeam.Id, th.BasicChannel.Id, th.BasicUser.Id, "testfile.txt", b)
+	finfo, err := th.App.doUploadFile(th.Context, time.Now(), th.BasicTeam.Id, th.BasicChannel.Id, th.BasicUser.Id, "testfile.txt", b)
 
 	require.Nil(t, err, "Unable to upload file. err=%v", err)
 
@@ -966,7 +966,7 @@ func TestPasswordRecovery(t *testing.T) {
 	th := Setup(t).InitBasic()
 	defer th.TearDown()
 
-	token, err := th.App.CreatePasswordRecoveryToken(th.BasicUser.Id, th.BasicUser.Email)
+	token, err := th.App.createPasswordRecoveryToken(th.BasicUser.Id, th.BasicUser.Email)
 	assert.Nil(t, err)
 
 	tokenData := struct {
@@ -984,7 +984,7 @@ func TestPasswordRecovery(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Password token with modified eMail after creation
-	token, err = th.App.CreatePasswordRecoveryToken(th.BasicUser.Id, th.BasicUser.Email)
+	token, err = th.App.createPasswordRecoveryToken(th.BasicUser.Id, th.BasicUser.Email)
 	assert.Nil(t, err)
 
 	th.App.UpdateConfig(func(c *model.Config) {
@@ -1469,12 +1469,12 @@ func TestUpdateUserRolesWithUser(t *testing.T) {
 	assert.Equal(t, user.Roles, model.SystemUserRoleId)
 
 	// Upgrade to sysadmin.
-	user, err := th.App.UpdateUserRolesWithUser(user, model.SystemUserRoleId+" "+model.SystemAdminRoleId, false)
+	user, err := th.App.updateUserRolesWithUser(user, model.SystemUserRoleId+" "+model.SystemAdminRoleId, false)
 	require.Nil(t, err)
 	assert.Equal(t, user.Roles, model.SystemUserRoleId+" "+model.SystemAdminRoleId)
 
 	// Test bad role.
-	_, err = th.App.UpdateUserRolesWithUser(user, "does not exist", false)
+	_, err = th.App.updateUserRolesWithUser(user, "does not exist", false)
 	require.NotNil(t, err)
 }
 
@@ -1488,7 +1488,7 @@ func TestDeactivateMfa(t *testing.T) {
 		})
 
 		user := th.BasicUser
-		err := th.App.DeactivateMfa(user.Id)
+		err := th.App.deactivateMfa(user.Id)
 		require.Nil(t, err)
 	})
 }

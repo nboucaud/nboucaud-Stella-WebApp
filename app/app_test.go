@@ -75,7 +75,7 @@ func TestDoAdvancedPermissionsMigration(t *testing.T) {
 
 	th.ResetRoleMigration()
 
-	th.App.DoAdvancedPermissionsMigration()
+	th.App.Srv().doAdvancedPermissionsMigration()
 
 	roleNames := []string{
 		"system_user",
@@ -193,7 +193,7 @@ func TestDoAdvancedPermissionsMigration(t *testing.T) {
 	th.App.Srv().SetLicense(model.NewTestLicense())
 
 	// Check the migration doesn't change anything if run again.
-	th.App.DoAdvancedPermissionsMigration()
+	th.App.Srv().doAdvancedPermissionsMigration()
 
 	roles2, err2 := th.App.GetRolesByNames(roleNames)
 	assert.Nil(t, err2)
@@ -214,7 +214,7 @@ func TestDoEmojisPermissionsMigration(t *testing.T) {
 	sort.Strings(expectedSystemAdmin)
 
 	th.ResetEmojisMigration()
-	th.App.DoEmojisPermissionsMigration()
+	th.App.Srv().doEmojisPermissionsMigration()
 
 	role3, err3 := th.App.GetRoleByName(context.Background(), model.SystemUserRoleId)
 	assert.Nil(t, err3)

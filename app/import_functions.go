@@ -41,7 +41,7 @@ func (a *App) importScheme(data *SchemeImportData, dryRun bool) *model.AppError 
 		return nil
 	}
 
-	scheme, err := a.GetSchemeByName(*data.Name)
+	scheme, err := a.getSchemeByName(*data.Name)
 	if err != nil {
 		scheme = new(model.Scheme)
 	} else if scheme.Scope != *data.Scope {
@@ -59,7 +59,7 @@ func (a *App) importScheme(data *SchemeImportData, dryRun bool) *model.AppError 
 	if scheme.Id == "" {
 		scheme, err = a.CreateScheme(scheme)
 	} else {
-		scheme, err = a.UpdateScheme(scheme)
+		scheme, err = a.updateScheme(scheme)
 	}
 
 	if err != nil {
@@ -151,7 +151,7 @@ func (a *App) importRole(data *RoleImportData, dryRun bool, isSchemeRole bool) *
 	}
 
 	if role.Id == "" {
-		_, err = a.CreateRole(role)
+		_, err = a.createRole(role)
 	} else {
 		_, err = a.UpdateRole(role)
 	}
@@ -189,7 +189,7 @@ func (a *App) importTeam(c *request.Context, data *TeamImportData, dryRun bool) 
 	}
 
 	if data.Scheme != nil {
-		scheme, err := a.GetSchemeByName(*data.Scheme)
+		scheme, err := a.getSchemeByName(*data.Scheme)
 		if err != nil {
 			return err
 		}
@@ -263,7 +263,7 @@ func (a *App) importChannel(c *request.Context, data *ChannelImportData, dryRun 
 	}
 
 	if data.Scheme != nil {
-		scheme, err := a.GetSchemeByName(*data.Scheme)
+		scheme, err := a.getSchemeByName(*data.Scheme)
 		if err != nil {
 			return err
 		}
@@ -791,7 +791,7 @@ func (a *App) importUserTeams(user *model.User, data *[]UserTeamImportData) *mod
 		}
 		if !user.IsGuest() {
 			var userShouldBeAdmin bool
-			userShouldBeAdmin, err = a.UserIsInAdminRoleGroup(user.Id, team.Id, model.GroupSyncableTypeTeam)
+			userShouldBeAdmin, err = a.userIsInAdminRoleGroup(user.Id, team.Id, model.GroupSyncableTypeTeam)
 			if err != nil {
 				return err
 			}
@@ -956,7 +956,7 @@ func (a *App) importUserChannels(user *model.User, team *model.Team, data *[]Use
 		}
 		if !user.IsGuest() {
 			var userShouldBeAdmin bool
-			userShouldBeAdmin, err = a.UserIsInAdminRoleGroup(user.Id, team.Id, model.GroupSyncableTypeTeam)
+			userShouldBeAdmin, err = a.userIsInAdminRoleGroup(user.Id, team.Id, model.GroupSyncableTypeTeam)
 			if err != nil {
 				return err
 			}
@@ -1077,7 +1077,7 @@ func (a *App) importReplies(c *request.Context, data []ReplyImportData, post *mo
 	usernames := []string{}
 	for _, replyData := range data {
 		replyData := replyData
-		if err = validateReplyImportData(&replyData, post.CreateAt, a.MaxPostSize()); err != nil {
+		if err = validateReplyImportData(&replyData, post.CreateAt, a.Srv().MaxPostSize()); err != nil {
 			return err
 		}
 		usernames = append(usernames, *replyData.User)
@@ -1202,7 +1202,7 @@ func (a *App) importAttachment(c *request.Context, data *AttachmentImportData, p
 
 	// Go over existing files in the post and see if there already exists a file with the same name, size and hash. If so - skip it
 	if post.Id != "" {
-		oldFiles, err := a.GetFileInfosForPost(post.Id, true)
+		oldFiles, err := a.getFileInfosForPost(post.Id, true)
 		if err != nil {
 			return nil, model.NewAppError("BulkImport", "app.import.attachment.file_upload.error", map[string]interface{}{"FilePath": *data.Path}, "", http.StatusBadRequest)
 		}
@@ -1212,7 +1212,7 @@ func (a *App) importAttachment(c *request.Context, data *AttachmentImportData, p
 			}
 			// check md5
 			newHash := sha1.Sum(fileData)
-			oldFileData, err := a.GetFile(oldFile.Id)
+			oldFileData, err := a.getFile(oldFile.Id)
 			if err != nil {
 				return nil, model.NewAppError("BulkImport", "app.import.attachment.file_upload.error", map[string]interface{}{"FilePath": *data.Path}, "", http.StatusBadRequest)
 			}
@@ -1227,14 +1227,14 @@ func (a *App) importAttachment(c *request.Context, data *AttachmentImportData, p
 
 	mlog.Info("Uploading file with name", mlog.String("file_name", name))
 
-	fileInfo, appErr := a.DoUploadFile(c, timestamp, teamID, post.ChannelId, post.UserId, name, fileData)
+	fileInfo, appErr := a.doUploadFile(c, timestamp, teamID, post.ChannelId, post.UserId, name, fileData)
 	if appErr != nil {
 		mlog.Error("Failed to upload file:", mlog.Err(appErr))
 		return nil, appErr
 	}
 
 	if fileInfo.IsImage() {
-		a.HandleImages([]string{fileInfo.PreviewPath}, []string{fileInfo.ThumbnailPath}, [][]byte{fileData})
+		a.handleImages([]string{fileInfo.PreviewPath}, []string{fileInfo.ThumbnailPath}, [][]byte{fileData})
 	}
 
 	return fileInfo, nil
@@ -1327,7 +1327,7 @@ func (a *App) importMultiplePostLines(c *request.Context, lines []LineImportWork
 	}
 
 	for _, line := range lines {
-		if err := validatePostImportData(line.Post, a.MaxPostSize()); err != nil {
+		if err := validatePostImportData(line.Post, a.Srv().MaxPostSize()); err != nil {
 			return line.LineNumber, err
 		}
 	}
@@ -1626,7 +1626,7 @@ func (a *App) importMultipleDirectPostLines(c *request.Context, lines []LineImpo
 	}
 
 	for _, line := range lines {
-		if err := validateDirectPostImportData(line.DirectPost, a.MaxPostSize()); err != nil {
+		if err := validateDirectPostImportData(line.DirectPost, a.Srv().MaxPostSize()); err != nil {
 			return line.LineNumber, err
 		}
 	}

@@ -21,7 +21,7 @@ type PluginCommand struct {
 	PluginId string
 }
 
-func (a *App) RegisterPluginCommand(pluginID string, command *model.Command) error {
+func (a *App) registerPluginCommand(pluginID string, command *model.Command) error {
 	if command.Trigger == "" {
 		return errors.New("invalid command")
 	}
@@ -74,7 +74,7 @@ func (a *App) RegisterPluginCommand(pluginID string, command *model.Command) err
 	return nil
 }
 
-func (a *App) UnregisterPluginCommand(pluginID, teamID, trigger string) {
+func (a *App) unregisterPluginCommand(pluginID, teamID, trigger string) {
 	trigger = strings.ToLower(trigger)
 
 	a.ch.pluginCommandsLock.Lock()
@@ -102,7 +102,7 @@ func (ch *Channels) unregisterPluginCommands(pluginID string) {
 	ch.pluginCommands = remaining
 }
 
-func (a *App) PluginCommandsForTeam(teamID string) []*model.Command {
+func (a *App) pluginCommandsForTeam(teamID string) []*model.Command {
 	a.ch.pluginCommandsLock.RLock()
 	defer a.ch.pluginCommandsLock.RUnlock()
 

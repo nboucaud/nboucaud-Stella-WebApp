@@ -19,7 +19,7 @@ import (
 const permissionsExportBatchSize = 100
 const systemSchemeName = "00000000-0000-0000-0000-000000000000" // Prevents collisions with user-created schemes.
 
-func (a *App) ResetPermissionsSystem() *model.AppError {
+func (a *App) resetPermissionsSystem() *model.AppError {
 	// Reset all Teams to not have a scheme.
 	if err := a.Srv().Store.Team().ResetAllTeamSchemes(); err != nil {
 		return model.NewAppError("ResetPermissionsSystem", "app.team.reset_all_team_schemes.app_error", nil, err.Error(), http.StatusInternalServerError)
@@ -76,9 +76,9 @@ func (a *App) ResetPermissionsSystem() *model.AppError {
 	return nil
 }
 
-func (a *App) ExportPermissions(w io.Writer) error {
+func (a *App) exportPermissions(w io.Writer) error {
 
-	next := a.SchemesIterator("", permissionsExportBatchSize)
+	next := a.schemesIterator("", permissionsExportBatchSize)
 	var schemeBatch []*model.Scheme
 
 	for schemeBatch = next(); len(schemeBatch) > 0; schemeBatch = next() {
@@ -157,7 +157,7 @@ func (a *App) ExportPermissions(w io.Writer) error {
 	return err
 }
 
-func (a *App) ImportPermissions(jsonl io.Reader) error {
+func (a *App) importPermissions(jsonl io.Reader) error {
 	createdSchemeIDs := []string{}
 
 	scanner := bufio.NewScanner(jsonl)

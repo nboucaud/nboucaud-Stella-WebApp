@@ -152,7 +152,7 @@ func (a *App) getWarnMetricStatusAndDisplayTextsForId(warnMetricId string, T i18
 
 func (a *App) notifyAdminsOfWarnMetricStatus(c *request.Context, warnMetricId string, isE0Edition bool) *model.AppError {
 	// get warn metrics bot
-	warnMetricsBot, err := a.GetWarnMetricsBot()
+	warnMetricsBot, err := a.getWarnMetricsBot()
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (a *App) notifyAdminsOfWarnMetricStatus(c *request.Context, warnMetricId st
 	// get sysadmins
 	var sysAdmins []*model.User
 	for {
-		sysAdminsList, err := a.GetUsers(userOptions)
+		sysAdminsList, err := a.getUsers(userOptions)
 		if err != nil {
 			return err
 		}

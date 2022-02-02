@@ -19,7 +19,7 @@ import (
 // If includeRemovedMembers is true, then channel members who left or were removed from the channel will
 // be re-added; otherwise, they will not be re-added.
 func (a *App) createDefaultChannelMemberships(c *request.Context, since int64, channelID *string, includeRemovedMembers bool) error {
-	channelMembers, appErr := a.ChannelMembersToAdd(since, channelID, includeRemovedMembers)
+	channelMembers, appErr := a.channelMembersToAdd(since, channelID, includeRemovedMembers)
 	if appErr != nil {
 		return appErr
 	}
@@ -84,7 +84,7 @@ func (a *App) createDefaultChannelMemberships(c *request.Context, since int64, c
 // If includeRemovedMembers is true, then team members who left or were removed from the team will
 // be re-added; otherwise, they will not be re-added.
 func (a *App) createDefaultTeamMemberships(c *request.Context, since int64, teamID *string, includeRemovedMembers bool) error {
-	teamMembers, appErr := a.TeamMembersToAdd(since, teamID, includeRemovedMembers)
+	teamMembers, appErr := a.teamMembersToAdd(since, teamID, includeRemovedMembers)
 	if appErr != nil {
 		return appErr
 	}
@@ -149,7 +149,7 @@ func (a *App) DeleteGroupConstrainedMemberships(c *request.Context) error {
 // groups of the given group-constrained team. If a teamID is given then the procedure is scoped to the given team,
 // if teamID is nil then the procedure affects all teams.
 func (a *App) deleteGroupConstrainedTeamMemberships(c *request.Context, teamID *string) error {
-	teamMembers, appErr := a.TeamMembersToRemove(teamID)
+	teamMembers, appErr := a.teamMembersToRemove(teamID)
 	if appErr != nil {
 		return appErr
 	}
@@ -173,7 +173,7 @@ func (a *App) deleteGroupConstrainedTeamMemberships(c *request.Context, teamID *
 // groups of the given group-constrained channel. If a channelID is given then the procedure is scoped to the given team,
 // if channelID is nil then the procedure affects all teams.
 func (a *App) deleteGroupConstrainedChannelMemberships(c *request.Context, channelID *string) error {
-	channelMembers, appErr := a.ChannelMembersToRemove(channelID)
+	channelMembers, appErr := a.channelMembersToRemove(channelID)
 	if appErr != nil {
 		return appErr
 	}

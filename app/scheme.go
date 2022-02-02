@@ -12,7 +12,7 @@ import (
 )
 
 func (a *App) GetScheme(id string) (*model.Scheme, *model.AppError) {
-	if appErr := a.IsPhase2MigrationCompleted(); appErr != nil {
+	if appErr := a.isPhase2MigrationCompleted(); appErr != nil {
 		return nil, appErr
 	}
 
@@ -29,8 +29,8 @@ func (a *App) GetScheme(id string) (*model.Scheme, *model.AppError) {
 	return scheme, nil
 }
 
-func (a *App) GetSchemeByName(name string) (*model.Scheme, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+func (a *App) getSchemeByName(name string) (*model.Scheme, *model.AppError) {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (a *App) GetSchemeByName(name string) (*model.Scheme, *model.AppError) {
 }
 
 func (a *App) GetSchemesPage(scope string, page int, perPage int) ([]*model.Scheme, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +72,7 @@ func (a *App) GetSchemes(scope string, offset int, limit int) ([]*model.Scheme, 
 }
 
 func (a *App) CreateScheme(scheme *model.Scheme) (*model.Scheme, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -108,12 +108,12 @@ func (a *App) CreateScheme(scheme *model.Scheme) (*model.Scheme, *model.AppError
 }
 
 func (a *App) PatchScheme(scheme *model.Scheme, patch *model.SchemePatch) (*model.Scheme, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
 	scheme.Patch(patch)
-	scheme, err := a.UpdateScheme(scheme)
+	scheme, err := a.updateScheme(scheme)
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +121,8 @@ func (a *App) PatchScheme(scheme *model.Scheme, patch *model.SchemePatch) (*mode
 	return scheme, err
 }
 
-func (a *App) UpdateScheme(scheme *model.Scheme) (*model.Scheme, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+func (a *App) updateScheme(scheme *model.Scheme) (*model.Scheme, *model.AppError) {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -143,7 +143,7 @@ func (a *App) UpdateScheme(scheme *model.Scheme) (*model.Scheme, *model.AppError
 }
 
 func (a *App) DeleteScheme(schemeId string) (*model.Scheme, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -161,15 +161,15 @@ func (a *App) DeleteScheme(schemeId string) (*model.Scheme, *model.AppError) {
 }
 
 func (a *App) GetTeamsForSchemePage(scheme *model.Scheme, page int, perPage int) ([]*model.Team, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
-	return a.GetTeamsForScheme(scheme, page*perPage, perPage)
+	return a.getTeamsForScheme(scheme, page*perPage, perPage)
 }
 
-func (a *App) GetTeamsForScheme(scheme *model.Scheme, offset int, limit int) ([]*model.Team, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+func (a *App) getTeamsForScheme(scheme *model.Scheme, offset int, limit int) ([]*model.Team, *model.AppError) {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -181,15 +181,15 @@ func (a *App) GetTeamsForScheme(scheme *model.Scheme, offset int, limit int) ([]
 }
 
 func (a *App) GetChannelsForSchemePage(scheme *model.Scheme, page int, perPage int) (model.ChannelList, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
-	return a.GetChannelsForScheme(scheme, page*perPage, perPage)
+	return a.getChannelsForScheme(scheme, page*perPage, perPage)
 }
 
-func (a *App) GetChannelsForScheme(scheme *model.Scheme, offset int, limit int) (model.ChannelList, *model.AppError) {
-	if err := a.IsPhase2MigrationCompleted(); err != nil {
+func (a *App) getChannelsForScheme(scheme *model.Scheme, offset int, limit int) (model.ChannelList, *model.AppError) {
+	if err := a.isPhase2MigrationCompleted(); err != nil {
 		return nil, err
 	}
 
@@ -215,11 +215,11 @@ func (s *Server) IsPhase2MigrationCompleted() *model.AppError {
 	return nil
 }
 
-func (a *App) IsPhase2MigrationCompleted() *model.AppError {
+func (a *App) isPhase2MigrationCompleted() *model.AppError {
 	return a.Srv().IsPhase2MigrationCompleted()
 }
 
-func (a *App) SchemesIterator(scope string, batchSize int) func() []*model.Scheme {
+func (a *App) schemesIterator(scope string, batchSize int) func() []*model.Scheme {
 	offset := 0
 	return func() []*model.Scheme {
 		schemes, err := a.Srv().Store.Scheme().GetAllPage(scope, offset, batchSize)

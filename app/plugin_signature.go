@@ -19,11 +19,7 @@ import (
 	"github.com/mattermost/mattermost-server/v6/utils"
 )
 
-// GetPublicKey will return the actual public key saved in the `name` file.
-func (a *App) GetPublicKey(name string) ([]byte, *model.AppError) {
-	return a.Srv().getPublicKey(name)
-}
-
+// getPublicKey will return the actual public key saved in the `name` file.
 func (s *Server) getPublicKey(name string) ([]byte, *model.AppError) {
 	data, err := s.configStore.GetFile(name)
 	if err != nil {
@@ -70,11 +66,6 @@ func (a *App) DeletePublicKey(name string) *model.AppError {
 	})
 
 	return nil
-}
-
-// VerifyPlugin checks that the given signature corresponds to the given plugin and matches a trusted certificate.
-func (a *App) VerifyPlugin(plugin, signature io.ReadSeeker) *model.AppError {
-	return a.ch.verifyPlugin(plugin, signature)
 }
 
 func (ch *Channels) verifyPlugin(plugin, signature io.ReadSeeker) *model.AppError {

@@ -237,7 +237,7 @@ func (a *App) AttachDeviceId(sessionID string, deviceID string, expiresAt int64)
 func (a *App) UpdateLastActivityAtIfNeeded(session model.Session) {
 	now := model.GetMillis()
 
-	a.UpdateWebConnUserActivity(session, now)
+	a.updateWebConnUserActivity(session, now)
 
 	if now-session.LastActivityAt < model.SessionActivityTimeout {
 		return
@@ -263,7 +263,7 @@ func (a *App) ExtendSessionExpiryIfNeeded(session *model.Session) bool {
 		return false
 	}
 
-	sessionLength := a.GetSessionLengthInMillis(session)
+	sessionLength := a.getSessionLengthInMillis(session)
 
 	// Only extend the expiry if the lessor of 1% or 1 day has elapsed within the
 	// current session duration.
@@ -316,7 +316,7 @@ func (a *App) extendSessionExpiry(sessionID string, newExpiry int64) *model.AppE
 
 // GetSessionLengthInMillis returns the session length, in milliseconds,
 // based on the type of session (Mobile, SSO, Web/LDAP).
-func (a *App) GetSessionLengthInMillis(session *model.Session) int64 {
+func (a *App) getSessionLengthInMillis(session *model.Session) int64 {
 	if session == nil {
 		return 0
 	}

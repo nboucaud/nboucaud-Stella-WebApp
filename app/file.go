@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"image"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -158,7 +157,7 @@ func (a *App) FileModTime(path string) (time.Time, *model.AppError) {
 	return modTime, nil
 }
 
-func (a *App) MoveFile(oldPath, newPath string) *model.AppError {
+func (a *App) moveFile(oldPath, newPath string) *model.AppError {
 	backend, err := a.FileBackend()
 	if err != nil {
 		return err
@@ -187,7 +186,7 @@ func (s *Server) writeFile(fr io.Reader, path string) (int64, *model.AppError) {
 	return result, nil
 }
 
-func (a *App) AppendFile(fr io.Reader, path string) (int64, *model.AppError) {
+func (a *App) appendFile(fr io.Reader, path string) (int64, *model.AppError) {
 	backend, err := a.FileBackend()
 	if err != nil {
 		return 0, err
@@ -231,19 +230,6 @@ func (s *Server) listDirectory(path string) ([]string, *model.AppError) {
 	}
 
 	return paths, nil
-}
-
-func (a *App) RemoveDirectory(path string) *model.AppError {
-	backend, err := a.FileBackend()
-	if err != nil {
-		return err
-	}
-	nErr := backend.RemoveDirectory(path)
-	if nErr != nil {
-		return model.NewAppError("RemoveDirectory", "api.file.remove_directory.app_error", nil, nErr.Error(), http.StatusInternalServerError)
-	}
-
-	return nil
 }
 
 func (a *App) getInfoForFilename(post *model.Post, teamID, channelID, userID, oldId, filename string) *model.FileInfo {
@@ -341,7 +327,7 @@ func parseOldFilenames(filenames []string, channelID, userID string) [][]string 
 }
 
 // Creates and stores FileInfos for a post created before the FileInfos table existed.
-func (a *App) MigrateFilenamesToFileInfos(post *model.Post) []*model.FileInfo {
+func (a *App) migrateFilenamesToFileInfos(post *model.Post) []*model.FileInfo {
 	if len(post.Filenames) == 0 {
 		mlog.Warn("Unable to migrate post to use FileInfos with an empty Filenames field", mlog.String("post_id", post.Id))
 		return []*model.FileInfo{}
@@ -472,31 +458,10 @@ func GeneratePublicLinkHash(fileID, salt string) string {
 	return base64.RawURLEncoding.EncodeToString(hash.Sum(nil))
 }
 
-func (a *App) UploadMultipartFiles(c *request.Context, teamID string, channelID string, userID string, fileHeaders []*multipart.FileHeader, clientIds []string, now time.Time) (*model.FileUploadResponse, *model.AppError) {
-	files := make([]io.ReadCloser, len(fileHeaders))
-	filenames := make([]string, len(fileHeaders))
-
-	for i, fileHeader := range fileHeaders {
-		file, fileErr := fileHeader.Open()
-		if fileErr != nil {
-			return nil, model.NewAppError("UploadFiles", "api.file.upload_file.read_request.app_error",
-				map[string]interface{}{"Filename": fileHeader.Filename}, fileErr.Error(), http.StatusBadRequest)
-		}
-
-		// Will be closed after UploadFiles returns
-		defer file.Close()
-
-		files[i] = file
-		filenames[i] = fileHeader.Filename
-	}
-
-	return a.UploadFiles(c, teamID, channelID, userID, files, filenames, clientIds, now)
-}
-
 // Uploads some files to the given team and channel as the given user. files and filenames should have
 // the same length. clientIds should either not be provided or have the same length as files and filenames.
 // The provided files should be closed by the caller so that they are not leaked.
-func (a *App) UploadFiles(c *request.Context, teamID string, channelID string, userID string, files []io.ReadCloser, filenames []string, clientIds []string, now time.Time) (*model.FileUploadResponse, *model.AppError) {
+func (a *App) uploadFiles(c *request.Context, teamID string, channelID string, userID string, files []io.ReadCloser, filenames []string, clientIds []string, now time.Time) (*model.FileUploadResponse, *model.AppError) {
 	if *a.Config().FileSettings.DriverName == "" {
 		return nil, model.NewAppError("UploadFiles", "api.file.upload_file.storage.app_error", nil, "", http.StatusNotImplemented)
 	}
@@ -519,7 +484,7 @@ func (a *App) UploadFiles(c *request.Context, teamID string, channelID string, u
 		io.Copy(buf, file)
 		data := buf.Bytes()
 
-		info, data, err := a.DoUploadFileExpectModification(c, now, teamID, channelID, userID, filenames[i], data)
+		info, data, err := a.doUploadFileExpectModification(c, now, teamID, channelID, userID, filenames[i], data)
 		if err != nil {
 			return nil, err
 		}
@@ -537,7 +502,7 @@ func (a *App) UploadFiles(c *request.Context, teamID string, channelID string, u
 		}
 	}
 
-	a.HandleImages(previewPathList, thumbnailPathList, imageDataList)
+	a.handleImages(previewPathList, thumbnailPathList, imageDataList)
 
 	return resStruct, nil
 }
@@ -550,7 +515,7 @@ func (a *App) UploadFile(c *request.Context, data []byte, channelID string, file
 			map[string]interface{}{"channelId": channelID}, "", http.StatusBadRequest)
 	}
 
-	info, _, appError := a.DoUploadFileExpectModification(c, time.Now(), "noteam", channelID, "nouser", filename, data)
+	info, _, appError := a.doUploadFileExpectModification(c, time.Now(), "noteam", channelID, "nouser", filename, data)
 	if appError != nil {
 		return nil, appError
 	}
@@ -560,14 +525,14 @@ func (a *App) UploadFile(c *request.Context, data []byte, channelID string, file
 		thumbnailPathList := []string{info.ThumbnailPath}
 		imageDataList := [][]byte{data}
 
-		a.HandleImages(previewPathList, thumbnailPathList, imageDataList)
+		a.handleImages(previewPathList, thumbnailPathList, imageDataList)
 	}
 
 	return info, nil
 }
 
-func (a *App) DoUploadFile(c *request.Context, now time.Time, rawTeamId string, rawChannelId string, rawUserId string, rawFilename string, data []byte) (*model.FileInfo, *model.AppError) {
-	info, _, err := a.DoUploadFileExpectModification(c, now, rawTeamId, rawChannelId, rawUserId, rawFilename, data)
+func (a *App) doUploadFile(c *request.Context, now time.Time, rawTeamId string, rawChannelId string, rawUserId string, rawFilename string, data []byte) (*model.FileInfo, *model.AppError) {
+	info, _, err := a.doUploadFileExpectModification(c, now, rawTeamId, rawChannelId, rawUserId, rawFilename, data)
 	return info, err
 }
 
@@ -943,7 +908,7 @@ func (t UploadFileTask) newAppError(id string, httpStatus int, extra ...interfac
 	return model.NewAppError("uploadFileTask", id, params, "", httpStatus)
 }
 
-func (a *App) DoUploadFileExpectModification(c *request.Context, now time.Time, rawTeamId string, rawChannelId string, rawUserId string, rawFilename string, data []byte) (*model.FileInfo, []byte, *model.AppError) {
+func (a *App) doUploadFileExpectModification(c *request.Context, now time.Time, rawTeamId string, rawChannelId string, rawUserId string, rawFilename string, data []byte) (*model.FileInfo, []byte, *model.AppError) {
 	filename := filepath.Base(rawFilename)
 	teamID := filepath.Base(rawTeamId)
 	channelID := filepath.Base(rawChannelId)
@@ -1033,7 +998,7 @@ func (a *App) DoUploadFileExpectModification(c *request.Context, now time.Time, 
 	return info, data, nil
 }
 
-func (a *App) HandleImages(previewPathList []string, thumbnailPathList []string, fileData [][]byte) {
+func (a *App) handleImages(previewPathList []string, thumbnailPathList []string, fileData [][]byte) {
 	wg := new(sync.WaitGroup)
 
 	for i := range fileData {
@@ -1182,7 +1147,7 @@ func (a *App) GetFileInfo(fileID string) (*model.FileInfo, *model.AppError) {
 	return fileInfo, nil
 }
 
-func (a *App) GetFileInfos(page, perPage int, opt *model.GetFileInfosOptions) ([]*model.FileInfo, *model.AppError) {
+func (a *App) getFileInfos(page, perPage int, opt *model.GetFileInfosOptions) ([]*model.FileInfo, *model.AppError) {
 	fileInfos, err := a.Srv().Store.FileInfo().GetWithOptions(page, perPage, opt)
 	if err != nil {
 		var invErr *store.ErrInvalidInput
@@ -1202,7 +1167,7 @@ func (a *App) GetFileInfos(page, perPage int, opt *model.GetFileInfosOptions) ([
 	return fileInfos, nil
 }
 
-func (a *App) GetFile(fileID string) ([]byte, *model.AppError) {
+func (a *App) getFile(fileID string) ([]byte, *model.AppError) {
 	info, err := a.GetFileInfo(fileID)
 	if err != nil {
 		return nil, err
@@ -1216,7 +1181,7 @@ func (a *App) GetFile(fileID string) ([]byte, *model.AppError) {
 	return data, nil
 }
 
-func (a *App) CopyFileInfos(userID string, fileIDs []string) ([]string, *model.AppError) {
+func (a *App) copyFileInfos(userID string, fileIDs []string) ([]string, *model.AppError) {
 	var newFileIds []string
 
 	now := model.GetMillis()

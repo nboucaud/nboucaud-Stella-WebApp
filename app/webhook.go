@@ -86,7 +86,7 @@ func (a *App) handleWebhookEvents(c *request.Context, post *model.Post, team *mo
 		}
 		a.Srv().Go(func(hook *model.OutgoingWebhook) func() {
 			return func() {
-				a.TriggerWebhook(c, payload, hook, post, channel)
+				a.triggerWebhook(c, payload, hook, post, channel)
 			}
 		}(hook))
 	}
@@ -94,7 +94,7 @@ func (a *App) handleWebhookEvents(c *request.Context, post *model.Post, team *mo
 	return nil
 }
 
-func (a *App) TriggerWebhook(c *request.Context, payload *model.OutgoingWebhookPayload, hook *model.OutgoingWebhook, post *model.Post, channel *model.Channel) {
+func (a *App) triggerWebhook(c *request.Context, payload *model.OutgoingWebhookPayload, hook *model.OutgoingWebhook, post *model.Post, channel *model.Channel) {
 	var body io.Reader
 	var contentType string
 	if hook.ContentType == "application/json" {
@@ -132,9 +132,9 @@ func (a *App) TriggerWebhook(c *request.Context, payload *model.OutgoingWebhookP
 
 				text := ""
 				if webhookResp.Text != nil {
-					text = a.ProcessSlackText(*webhookResp.Text)
+					text = a.processSlackText(*webhookResp.Text)
 				}
-				webhookResp.Attachments = a.ProcessSlackAttachments(webhookResp.Attachments)
+				webhookResp.Attachments = a.processSlackAttachments(webhookResp.Attachments)
 				// attachments is in here for slack compatibility
 				if len(webhookResp.Attachments) > 0 {
 					webhookResp.Props["attachments"] = webhookResp.Attachments
@@ -146,7 +146,7 @@ func (a *App) TriggerWebhook(c *request.Context, payload *model.OutgoingWebhookP
 				if *a.Config().ServiceSettings.EnablePostIconOverride && hook.IconURL != "" && webhookResp.IconURL == "" {
 					webhookResp.IconURL = hook.IconURL
 				}
-				if _, err := a.CreateWebhookPost(c, hook.CreatorId, channel, text, webhookResp.Username, webhookResp.IconURL, "", webhookResp.Props, webhookResp.Type, postRootId); err != nil {
+				if _, err := a.createWebhookPost(c, hook.CreatorId, channel, text, webhookResp.Username, webhookResp.IconURL, "", webhookResp.Props, webhookResp.Type, postRootId); err != nil {
 					mlog.Error("Failed to create response post.", mlog.Err(err))
 				}
 			}
@@ -262,7 +262,7 @@ func SplitWebhookPost(post *model.Post, maxPostSize int) ([]*model.Post, *model.
 	return splits, nil
 }
 
-func (a *App) CreateWebhookPost(c *request.Context, userID string, channel *model.Channel, text, overrideUsername, overrideIconURL, overrideIconEmoji string, props model.StringInterface, postType string, postRootId string) (*model.Post, *model.AppError) {
+func (a *App) createWebhookPost(c *request.Context, userID string, channel *model.Channel, text, overrideUsername, overrideIconURL, overrideIconEmoji string, props model.StringInterface, postType string, postRootId string) (*model.Post, *model.AppError) {
 	// parse links into Markdown format
 	linkWithTextRegex := regexp.MustCompile(`<([^\n<\|>]+)\|([^\n>]+)>`)
 	text = linkWithTextRegex.ReplaceAllString(text, "[${2}](${1})")
@@ -308,7 +308,7 @@ func (a *App) CreateWebhookPost(c *request.Context, userID string, channel *mode
 		}
 	}
 
-	splits, err := SplitWebhookPost(post, a.MaxPostSize())
+	splits, err := SplitWebhookPost(post, a.Srv().MaxPostSize())
 	if err != nil {
 		return nil, err
 	}
@@ -422,7 +422,7 @@ func (a *App) GetIncomingWebhook(hookID string) (*model.IncomingWebhook, *model.
 	return webhook, nil
 }
 
-func (a *App) GetIncomingWebhooksForTeamPage(teamID string, page, perPage int) ([]*model.IncomingWebhook, *model.AppError) {
+func (a *App) getIncomingWebhooksForTeamPage(teamID string, page, perPage int) ([]*model.IncomingWebhook, *model.AppError) {
 	return a.GetIncomingWebhooksForTeamPageByUser(teamID, "", page, perPage)
 }
 
@@ -450,10 +450,6 @@ func (a *App) GetIncomingWebhooksPageByUser(userID string, page, perPage int) ([
 	}
 
 	return webhooks, nil
-}
-
-func (a *App) GetIncomingWebhooksPage(page, perPage int) ([]*model.IncomingWebhook, *model.AppError) {
-	return a.GetIncomingWebhooksPageByUser("", page, perPage)
 }
 
 func (a *App) CreateOutgoingWebhook(hook *model.OutgoingWebhook) (*model.OutgoingWebhook, *model.AppError) {
@@ -583,10 +579,6 @@ func (a *App) GetOutgoingWebhook(hookID string) (*model.OutgoingWebhook, *model.
 	return webhook, nil
 }
 
-func (a *App) GetOutgoingWebhooksPage(page, perPage int) ([]*model.OutgoingWebhook, *model.AppError) {
-	return a.GetOutgoingWebhooksPageByUser("", page, perPage)
-}
-
 func (a *App) GetOutgoingWebhooksPageByUser(userID string, page, perPage int) ([]*model.OutgoingWebhook, *model.AppError) {
 	if !*a.Config().ServiceSettings.EnableOutgoingWebhooks {
 		return nil, model.NewAppError("GetOutgoingWebhooksPageByUser", "api.outgoing_webhook.disabled.app_error", nil, "", http.StatusNotImplemented)
@@ -613,7 +605,7 @@ func (a *App) GetOutgoingWebhooksForChannelPageByUser(channelID string, userID s
 	return webhooks, nil
 }
 
-func (a *App) GetOutgoingWebhooksForTeamPage(teamID string, page, perPage int) ([]*model.OutgoingWebhook, *model.AppError) {
+func (a *App) getOutgoingWebhooksForTeamPage(teamID string, page, perPage int) ([]*model.OutgoingWebhook, *model.AppError) {
 	return a.GetOutgoingWebhooksForTeamPageByUser(teamID, "", page, perPage)
 }
 
@@ -701,8 +693,8 @@ func (a *App) HandleIncomingWebhook(c *request.Context, hookID string, req *mode
 
 	req.Props["webhook_display_name"] = hook.DisplayName
 
-	text = a.ProcessSlackText(text)
-	req.Attachments = a.ProcessSlackAttachments(req.Attachments)
+	text = a.processSlackText(text)
+	req.Attachments = a.processSlackAttachments(req.Attachments)
 	// attachments is in here for slack compatibility
 	if len(req.Attachments) > 0 {
 		req.Props["attachments"] = req.Attachments
@@ -789,7 +781,7 @@ func (a *App) HandleIncomingWebhook(c *request.Context, hookID string, req *mode
 		overrideIconURL = req.IconURL
 	}
 
-	_, err := a.CreateWebhookPost(c, hook.UserId, channel, text, overrideUsername, overrideIconURL, req.IconEmoji, req.Props, webhookType, "")
+	_, err := a.createWebhookPost(c, hook.UserId, channel, text, overrideUsername, overrideIconURL, req.IconEmoji, req.Props, webhookType, "")
 	return err
 }
 

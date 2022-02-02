@@ -222,7 +222,7 @@ func Fuzz(data []byte) int {
 						// This hits some additional code paths.
 						go func() {
 							time.Sleep(2 * time.Second)
-							th.App.HubUnregister(conn)
+							th.App.hubUnregister(conn)
 						}()
 					}()
 

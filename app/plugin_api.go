@@ -68,11 +68,11 @@ func (api *PluginAPI) LoadPluginConfiguration(dest interface{}) error {
 }
 
 func (api *PluginAPI) RegisterCommand(command *model.Command) error {
-	return api.app.RegisterPluginCommand(api.id, command)
+	return api.app.registerPluginCommand(api.id, command)
 }
 
 func (api *PluginAPI) UnregisterCommand(teamID, trigger string) error {
-	api.app.UnregisterPluginCommand(api.id, teamID, trigger)
+	api.app.unregisterPluginCommand(api.id, teamID, trigger)
 	return nil
 }
 
@@ -219,7 +219,7 @@ func (api *PluginAPI) GetTeamMember(teamID, userID string) (*model.TeamMember, *
 }
 
 func (api *PluginAPI) GetTeamMembersForUser(userID string, page int, perPage int) ([]*model.TeamMember, *model.AppError) {
-	return api.app.GetTeamMembersForUserWithPagination(userID, page, perPage)
+	return api.app.getTeamMembersForUserWithPagination(userID, page, perPage)
 }
 
 func (api *PluginAPI) UpdateTeamMemberRoles(teamID, userID, newRoles string) (*model.TeamMember, *model.AppError) {
@@ -244,7 +244,7 @@ func (api *PluginAPI) DeleteUser(userID string) *model.AppError {
 }
 
 func (api *PluginAPI) GetUsers(options *model.UserGetOptions) ([]*model.User, *model.AppError) {
-	return api.app.GetUsers(options)
+	return api.app.getUsers(options)
 }
 
 func (api *PluginAPI) GetUser(userID string) (*model.User, *model.AppError) {
@@ -265,7 +265,7 @@ func (api *PluginAPI) GetUsersByUsernames(usernames []string) ([]*model.User, *m
 
 func (api *PluginAPI) GetUsersInTeam(teamID string, page int, perPage int) ([]*model.User, *model.AppError) {
 	options := &model.UserGetOptions{InTeamId: teamID, Page: page, PerPage: perPage}
-	return api.app.GetUsersInTeam(options)
+	return api.app.getUsersInTeam(options)
 }
 
 func (api *PluginAPI) GetPreferencesForUser(userID string) ([]model.Preference, *model.AppError) {
@@ -365,13 +365,13 @@ func (api *PluginAPI) GetUserCustomStatus(userID string) (*model.CustomStatus, *
 func (api *PluginAPI) GetUsersInChannel(channelID, sortBy string, page, perPage int) ([]*model.User, *model.AppError) {
 	switch sortBy {
 	case model.ChannelSortByUsername:
-		return api.app.GetUsersInChannel(&model.UserGetOptions{
+		return api.app.getUsersInChannel(&model.UserGetOptions{
 			InChannelId: channelID,
 			Page:        page,
 			PerPage:     perPage,
 		})
 	case model.ChannelSortByStatus:
-		return api.app.GetUsersInChannelByStatus(&model.UserGetOptions{
+		return api.app.getUsersInChannelByStatus(&model.UserGetOptions{
 			InChannelId: channelID,
 			Page:        page,
 			PerPage:     perPage,
@@ -578,7 +578,7 @@ func (api *PluginAPI) GetChannelMembersByIds(channelID string, userIDs []string)
 func (api *PluginAPI) GetChannelMembersForUser(_, userID string, page, perPage int) ([]*model.ChannelMember, *model.AppError) {
 	// The team ID parameter was never used in the SQL query.
 	// But we keep this to maintain compatibility.
-	return api.app.GetChannelMembersForUserWithPagination(userID, page, perPage)
+	return api.app.getChannelMembersForUserWithPagination(userID, page, perPage)
 }
 
 func (api *PluginAPI) UpdateChannelMemberRoles(channelID, userID, newRoles string) (*model.ChannelMember, *model.AppError) {
@@ -608,7 +608,7 @@ func (api *PluginAPI) GetGroupMemberUsers(groupID string, page, perPage int) ([]
 }
 
 func (api *PluginAPI) GetGroupsBySource(groupSource model.GroupSource) ([]*model.Group, *model.AppError) {
-	return api.app.GetGroupsBySource(groupSource)
+	return api.app.getGroupsBySource(groupSource)
 }
 
 func (api *PluginAPI) GetGroupsForUser(userID string) ([]*model.Group, *model.AppError) {
@@ -636,11 +636,11 @@ func (api *PluginAPI) SendEphemeralPost(userID string, post *model.Post) *model.
 }
 
 func (api *PluginAPI) UpdateEphemeralPost(userID string, post *model.Post) *model.Post {
-	return api.app.UpdateEphemeralPost(userID, post)
+	return api.app.updateEphemeralPost(userID, post)
 }
 
 func (api *PluginAPI) DeleteEphemeralPost(userID, postID string) {
-	api.app.DeleteEphemeralPost(userID, postID)
+	api.app.deleteEphemeralPost(userID, postID)
 }
 
 func (api *PluginAPI) DeletePost(postID string) *model.AppError {
@@ -707,7 +707,7 @@ func (api *PluginAPI) GetEmoji(emojiId string) (*model.Emoji, *model.AppError) {
 }
 
 func (api *PluginAPI) CopyFileInfos(userID string, fileIDs []string) ([]string, *model.AppError) {
-	return api.app.CopyFileInfos(userID, fileIDs)
+	return api.app.copyFileInfos(userID, fileIDs)
 }
 
 func (api *PluginAPI) GetFileInfo(fileID string) (*model.FileInfo, *model.AppError) {
@@ -715,7 +715,7 @@ func (api *PluginAPI) GetFileInfo(fileID string) (*model.FileInfo, *model.AppErr
 }
 
 func (api *PluginAPI) GetFileInfos(page, perPage int, opt *model.GetFileInfosOptions) ([]*model.FileInfo, *model.AppError) {
-	return api.app.GetFileInfos(page, perPage, opt)
+	return api.app.getFileInfos(page, perPage, opt)
 }
 
 func (api *PluginAPI) GetFileLink(fileID string) (string, *model.AppError) {
@@ -740,7 +740,7 @@ func (api *PluginAPI) ReadFile(path string) ([]byte, *model.AppError) {
 }
 
 func (api *PluginAPI) GetFile(fileID string) ([]byte, *model.AppError) {
-	return api.app.GetFile(fileID)
+	return api.app.getFile(fileID)
 }
 
 func (api *PluginAPI) UploadFile(data []byte, channelID string, filename string) (*model.FileInfo, *model.AppError) {
@@ -770,7 +770,7 @@ func (api *PluginAPI) SetTeamIcon(teamID string, data []byte) *model.AppError {
 		return err
 	}
 
-	return api.app.SetTeamIconFromFile(team, bytes.NewReader(data))
+	return api.app.setTeamIconFromFile(team, bytes.NewReader(data))
 }
 
 func (api *PluginAPI) OpenInteractiveDialog(dialog model.OpenDialogRequest) *model.AppError {
@@ -861,39 +861,39 @@ func (api *PluginAPI) InstallPlugin(file io.Reader, replace bool) (*model.Manife
 // KV Store Section
 
 func (api *PluginAPI) KVSetWithOptions(key string, value []byte, options model.PluginKVSetOptions) (bool, *model.AppError) {
-	return api.app.SetPluginKeyWithOptions(api.id, key, value, options)
+	return api.app.setPluginKeyWithOptions(api.id, key, value, options)
 }
 
 func (api *PluginAPI) KVSet(key string, value []byte) *model.AppError {
-	return api.app.SetPluginKey(api.id, key, value)
+	return api.app.setPluginKey(api.id, key, value)
 }
 
 func (api *PluginAPI) KVCompareAndSet(key string, oldValue, newValue []byte) (bool, *model.AppError) {
-	return api.app.CompareAndSetPluginKey(api.id, key, oldValue, newValue)
+	return api.app.compareAndSetPluginKey(api.id, key, oldValue, newValue)
 }
 
 func (api *PluginAPI) KVCompareAndDelete(key string, oldValue []byte) (bool, *model.AppError) {
-	return api.app.CompareAndDeletePluginKey(api.id, key, oldValue)
+	return api.app.compareAndDeletePluginKey(api.id, key, oldValue)
 }
 
 func (api *PluginAPI) KVSetWithExpiry(key string, value []byte, expireInSeconds int64) *model.AppError {
-	return api.app.SetPluginKeyWithExpiry(api.id, key, value, expireInSeconds)
+	return api.app.setPluginKeyWithExpiry(api.id, key, value, expireInSeconds)
 }
 
 func (api *PluginAPI) KVGet(key string) ([]byte, *model.AppError) {
-	return api.app.GetPluginKey(api.id, key)
+	return api.app.getPluginKey(api.id, key)
 }
 
 func (api *PluginAPI) KVDelete(key string) *model.AppError {
-	return api.app.DeletePluginKey(api.id, key)
+	return api.app.deletePluginKey(api.id, key)
 }
 
 func (api *PluginAPI) KVDeleteAll() *model.AppError {
-	return api.app.DeleteAllKeysForPlugin(api.id)
+	return api.app.deleteAllKeysForPlugin(api.id)
 }
 
 func (api *PluginAPI) KVList(page, perPage int) ([]string, *model.AppError) {
-	return api.app.ListPluginKeys(api.id, page, perPage)
+	return api.app.listPluginKeys(api.id, page, perPage)
 }
 
 func (api *PluginAPI) PublishWebSocketEvent(event string, payload map[string]interface{}, broadcast *model.WebsocketBroadcast) {
@@ -996,7 +996,7 @@ func (api *PluginAPI) PluginHTTP(request *http.Request) *http.Response {
 		}
 	}
 	responseTransfer := &PluginResponseWriter{}
-	api.app.ServeInterPluginRequest(responseTransfer, request, api.id, destinationPluginId)
+	api.app.serveInterPluginRequest(responseTransfer, request, api.id, destinationPluginId)
 	return responseTransfer.GenerateResponse()
 }
 
@@ -1046,7 +1046,7 @@ func (api *PluginAPI) ListPluginCommands(teamID string) ([]*model.Command, error
 	commands := make([]*model.Command, 0)
 	seen := make(map[string]bool)
 
-	for _, cmd := range api.app.PluginCommandsForTeam(teamID) {
+	for _, cmd := range api.app.pluginCommandsForTeam(teamID) {
 		if !seen[cmd.Trigger] {
 			seen[cmd.Trigger] = true
 			commands = append(commands, cmd)

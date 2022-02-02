@@ -70,7 +70,7 @@ func (a *App) PreparePostListForClient(originalList *model.PostList) *model.Post
 
 // OverrideIconURLIfEmoji changes the post icon override URL prop, if it has an emoji icon,
 // so that it points to the URL (relative) of the emoji - static if emoji is default, /api if custom.
-func (a *App) OverrideIconURLIfEmoji(post *model.Post) {
+func (a *App) overrideIconURLIfEmoji(post *model.Post) {
 	prop, ok := post.GetProps()[model.PostPropsOverrideIconEmoji]
 	if !ok || prop == nil {
 		return
@@ -87,7 +87,7 @@ func (a *App) OverrideIconURLIfEmoji(post *model.Post) {
 
 	emojiName = strings.ReplaceAll(emojiName, ":", "")
 
-	if emojiURL, err := a.GetEmojiStaticURL(emojiName); err == nil {
+	if emojiURL, err := a.getEmojiStaticURL(emojiName); err == nil {
 		post.AddProp(model.PostPropsOverrideIconURL, emojiURL)
 	} else {
 		mlog.Warn("Failed to retrieve URL for overridden profile icon (emoji)", mlog.String("emojiName", emojiName), mlog.Err(err))
@@ -98,9 +98,9 @@ func (a *App) PreparePostForClient(originalPost *model.Post, isNewPost, isEditPo
 	post := originalPost.Clone()
 
 	// Proxy image links before constructing metadata so that requests go through the proxy
-	post = a.PostWithProxyAddedToImageURLs(post)
+	post = a.postWithProxyAddedToImageURLs(post)
 
-	a.OverrideIconURLIfEmoji(post)
+	a.overrideIconURLIfEmoji(post)
 	if post.Metadata == nil {
 		post.Metadata = &model.PostMetadata{}
 	}
@@ -177,7 +177,7 @@ func (a *App) SanitizePostMetadataForUser(post *model.Post, userID string) (*mod
 		return nil, err
 	}
 
-	if previewedChannel != nil && !a.HasPermissionToReadChannel(userID, previewedChannel) {
+	if previewedChannel != nil && !a.hasPermissionToReadChannel(userID, previewedChannel) {
 		post = post.Clone()
 		post.Metadata.Embeds[0].Data = nil
 	}
@@ -202,7 +202,7 @@ func (a *App) getFileMetadataForPost(post *model.Post, fromMaster bool) ([]*mode
 		return nil, nil
 	}
 
-	return a.GetFileInfosForPost(post.Id, fromMaster)
+	return a.getFileInfosForPost(post.Id, fromMaster)
 }
 
 func (a *App) getEmojisAndReactionsForPost(post *model.Post) ([]*model.Emoji, []*model.Reaction, *model.AppError) {
@@ -394,7 +394,7 @@ func (a *App) getCustomEmojisForPost(post *model.Post, reactions []*model.Reacti
 		return []*model.Emoji{}, nil
 	}
 
-	return a.GetMultipleEmojiByName(names)
+	return a.getMultipleEmojiByName(names)
 }
 
 func (a *App) isLinkAllowedForPreview(link string) bool {

@@ -22,7 +22,7 @@ import (
 	"github.com/mattermost/mattermost-server/v6/store"
 )
 
-func (a *App) SendNotifications(post *model.Post, team *model.Team, channel *model.Channel, sender *model.User, parentPostList *model.PostList, setOnline bool) ([]string, error) {
+func (a *App) sendNotifications(post *model.Post, team *model.Team, channel *model.Channel, sender *model.User, parentPostList *model.PostList, setOnline bool) ([]string, error) {
 	// Do not send notifications in archived channels
 	if channel.DeleteAt > 0 {
 		return []string{}, nil
@@ -688,7 +688,7 @@ func (a *App) sendOutOfChannelMentions(sender *model.User, post *model.Post, cha
 	return true, nil
 }
 
-func (a *App) FilterUsersByVisible(viewer *model.User, otherUsers []*model.User) ([]*model.User, *model.AppError) {
+func (a *App) filterUsersByVisible(viewer *model.User, otherUsers []*model.User) ([]*model.User, *model.AppError) {
 	result := []*model.User{}
 	for _, user := range otherUsers {
 		canSee, err := a.UserCanSeeOtherUser(viewer.Id, user.Id)
@@ -723,7 +723,7 @@ func (a *App) filterOutOfChannelMentions(sender *model.User, post *model.Post, c
 	// Filter out inactive users and bots
 	allUsers := model.UserSlice(users).FilterByActive(true)
 	allUsers = allUsers.FilterWithoutBots()
-	allUsers, appErr := a.FilterUsersByVisible(sender, allUsers)
+	allUsers, appErr := a.filterUsersByVisible(sender, allUsers)
 	if appErr != nil {
 		return nil, nil, appErr
 	}
@@ -1053,7 +1053,7 @@ func (a *App) getMentionKeywordsInChannel(profiles map[string]*model.User, allow
 			keywords,
 			profile,
 			channelMemberNotifyPropsMap[profile.Id],
-			a.GetStatusFromCache(profile.Id),
+			a.getStatusFromCache(profile.Id),
 			allowChannelMentions,
 		)
 	}

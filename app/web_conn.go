@@ -131,7 +131,7 @@ func (a *App) PopulateWebConnConfig(s *model.Session, cfg *WebConnConfig, seqVal
 
 	// This does not handle reconnect requests across nodes in a cluster.
 	// It falls back to the non-reliable case in that scenario.
-	res := a.CheckWebConn(s.UserId, cfg.ConnectionID)
+	res := a.checkWebConn(s.UserId, cfg.ConnectionID)
 	if res == nil {
 		// If the connection is not present, then we assume either timeout,
 		// or server restart. In that case, we set a new one.
@@ -314,7 +314,7 @@ func (wc *WebConn) Pump() {
 	close(wc.endWritePump)
 	close(wc.pluginPosted)
 	wg.Wait()
-	wc.App.HubUnregister(wc)
+	wc.App.hubUnregister(wc)
 	close(wc.pumpFinished)
 
 	if pluginsEnvironment := wc.App.GetPluginsEnvironment(); pluginsEnvironment != nil {

@@ -13,12 +13,12 @@ import (
 	"github.com/mattermost/mattermost-server/v6/store"
 )
 
-func (a *App) AddStatusCacheSkipClusterSend(status *model.Status) {
+func (a *App) addStatusCacheSkipClusterSend(status *model.Status) {
 	a.Srv().statusCache.Set(status.UserId, status)
 }
 
-func (a *App) AddStatusCache(status *model.Status) {
-	a.AddStatusCacheSkipClusterSend(status)
+func (a *App) addStatusCache(status *model.Status) {
+	a.addStatusCacheSkipClusterSend(status)
 
 	if a.Cluster() != nil {
 		statusJSON, jsonErr := json.Marshal(status)
@@ -42,7 +42,7 @@ func (a *App) GetAllStatuses() map[string]*model.Status {
 	statusMap := map[string]*model.Status{}
 	if userIDs, err := a.Srv().statusCache.Keys(); err == nil {
 		for _, userID := range userIDs {
-			status := a.GetStatusFromCache(userID)
+			status := a.getStatusFromCache(userID)
 			if status != nil {
 				statusMap[userID] = status
 			}
@@ -82,7 +82,7 @@ func (a *App) GetStatusesByIds(userIDs []string) (map[string]interface{}, *model
 		}
 
 		for _, s := range statuses {
-			a.AddStatusCacheSkipClusterSend(s)
+			a.addStatusCacheSkipClusterSend(s)
 			statusMap[s.UserId] = s.Status
 		}
 
@@ -130,7 +130,7 @@ func (a *App) GetUserStatusesByIds(userIDs []string) ([]*model.Status, *model.Ap
 		}
 
 		for _, s := range statuses {
-			a.AddStatusCacheSkipClusterSend(s)
+			a.addStatusCacheSkipClusterSend(s)
 		}
 
 		statusMap = append(statusMap, statuses...)
@@ -160,7 +160,7 @@ func (a *App) GetUserStatusesByIds(userIDs []string) ([]*model.Status, *model.Ap
 // SetStatusLastActivityAt sets the last activity at for a user on the local app server and updates
 // status to away if needed. Used by the WS to set status to away if an 'online' device disconnects
 // while an 'away' device is still connected
-func (a *App) SetStatusLastActivityAt(userID string, activityAt int64) {
+func (a *App) setStatusLastActivityAt(userID string, activityAt int64) {
 	var status *model.Status
 	var err *model.AppError
 	if status, err = a.GetStatus(userID); err != nil {
@@ -169,7 +169,7 @@ func (a *App) SetStatusLastActivityAt(userID string, activityAt int64) {
 
 	status.LastActivityAt = activityAt
 
-	a.AddStatusCacheSkipClusterSend(status)
+	a.addStatusCacheSkipClusterSend(status)
 	a.SetStatusAwayIfNeeded(userID, false)
 }
 
@@ -207,7 +207,7 @@ func (a *App) SetStatusOnline(userID string, manual bool) {
 		status.LastActivityAt = model.GetMillis()
 	}
 
-	a.AddStatusCache(status)
+	a.addStatusCache(status)
 
 	// Only update the database if the status has changed, the status has been manually set,
 	// or enough time has passed since the previous action
@@ -224,11 +224,11 @@ func (a *App) SetStatusOnline(userID string, manual bool) {
 	}
 
 	if broadcast {
-		a.BroadcastStatus(status)
+		a.broadcastStatus(status)
 	}
 }
 
-func (a *App) BroadcastStatus(status *model.Status) {
+func (a *App) broadcastStatus(status *model.Status) {
 	if a.Srv().Busy.IsBusy() {
 		// this is considered a non-critical service and will be disabled when server busy.
 		return
@@ -274,7 +274,7 @@ func (a *App) SetStatusAwayIfNeeded(userID string, manual bool) {
 			return
 		}
 
-		if !a.IsUserAway(status.LastActivityAt) {
+		if !a.isUserAway(status.LastActivityAt) {
 			return
 		}
 	}
@@ -326,16 +326,16 @@ func (a *App) SetStatusDoNotDisturb(userID string) {
 }
 
 func (a *App) SaveAndBroadcastStatus(status *model.Status) {
-	a.AddStatusCache(status)
+	a.addStatusCache(status)
 
 	if err := a.Srv().Store.Status().SaveOrUpdate(status); err != nil {
 		mlog.Warn("Failed to save status", mlog.String("user_id", status.UserId), mlog.Err(err))
 	}
 
-	a.BroadcastStatus(status)
+	a.broadcastStatus(status)
 }
 
-func (a *App) SetStatusOutOfOffice(userID string) {
+func (a *App) setStatusOutOfOffice(userID string) {
 	if !*a.Config().ServiceSettings.EnableUserStatuses {
 		return
 	}
@@ -352,7 +352,7 @@ func (a *App) SetStatusOutOfOffice(userID string) {
 	a.SaveAndBroadcastStatus(status)
 }
 
-func (a *App) GetStatusFromCache(userID string) *model.Status {
+func (a *App) getStatusFromCache(userID string) *model.Status {
 	var status *model.Status
 	if err := a.Srv().statusCache.Get(userID, &status); err == nil {
 		statusCopy := &model.Status{}
@@ -368,7 +368,7 @@ func (a *App) GetStatus(userID string) (*model.Status, *model.AppError) {
 		return &model.Status{}, nil
 	}
 
-	status := a.GetStatusFromCache(userID)
+	status := a.getStatusFromCache(userID)
 	if status != nil {
 		return status, nil
 	}
@@ -387,21 +387,21 @@ func (a *App) GetStatus(userID string) (*model.Status, *model.AppError) {
 	return status, nil
 }
 
-func (a *App) IsUserAway(lastActivityAt int64) bool {
+func (a *App) isUserAway(lastActivityAt int64) bool {
 	return model.GetMillis()-lastActivityAt >= *a.Config().TeamSettings.UserStatusAwayTimeout*1000
 }
 
 // UpdateDNDStatusOfUsers is a recurring task which is started when server starts
 // which unsets dnd status of users if needed and saves and broadcasts it
 func (a *App) UpdateDNDStatusOfUsers() {
-	statuses, err := a.UpdateExpiredDNDStatuses()
+	statuses, err := a.updateExpiredDNDStatuses()
 	if err != nil {
 		mlog.Warn("Failed to fetch dnd statues from store", mlog.String("err", err.Error()))
 		return
 	}
 	for i := range statuses {
-		a.AddStatusCache(statuses[i])
-		a.BroadcastStatus(statuses[i])
+		a.addStatusCache(statuses[i])
+		a.broadcastStatus(statuses[i])
 	}
 }
 

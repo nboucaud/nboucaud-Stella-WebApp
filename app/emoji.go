@@ -69,7 +69,7 @@ func (a *App) CreateEmoji(sessionUserId string, emoji *model.Emoji, multiPartIma
 		return nil, err
 	}
 
-	if err := a.UploadEmojiImage(emoji.Id, imageData[0]); err != nil {
+	if err := a.uploadEmojiImage(emoji.Id, imageData[0]); err != nil {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (a *App) GetEmojiList(page, perPage int, sort string) ([]*model.Emoji, *mod
 	return list, nil
 }
 
-func (a *App) UploadEmojiImage(id string, imageData *multipart.FileHeader) *model.AppError {
+func (a *App) uploadEmojiImage(id string, imageData *multipart.FileHeader) *model.AppError {
 	if !*a.Config().ServiceSettings.EnableCustomEmoji {
 		return model.NewAppError("UploadEmojiImage", "api.emoji.disabled.app_error", nil, "", http.StatusNotImplemented)
 	}
@@ -228,7 +228,7 @@ func (a *App) GetEmojiByName(emojiName string) (*model.Emoji, *model.AppError) {
 	return emoji, nil
 }
 
-func (a *App) GetMultipleEmojiByName(names []string) ([]*model.Emoji, *model.AppError) {
+func (a *App) getMultipleEmojiByName(names []string) ([]*model.Emoji, *model.AppError) {
 	if !*a.Config().ServiceSettings.EnableCustomEmoji {
 		return nil, model.NewAppError("GetMultipleEmojiByName", "api.emoji.disabled.app_error", nil, "", http.StatusNotImplemented)
 	}
@@ -281,7 +281,7 @@ func (a *App) SearchEmoji(name string, prefixOnly bool, limit int) ([]*model.Emo
 
 // GetEmojiStaticURL returns a relative static URL for system default emojis,
 // and the API route for custom ones. Errors if not found or if custom and deleted.
-func (a *App) GetEmojiStaticURL(emojiName string) (string, *model.AppError) {
+func (a *App) getEmojiStaticURL(emojiName string) (string, *model.AppError) {
 	subPath, _ := utils.GetSubpathFromConfig(a.Config())
 
 	if id, found := model.GetSystemEmojiId(emojiName); found {
@@ -343,7 +343,7 @@ func imageToPaletted(img image.Image) *image.Paletted {
 }
 
 func (a *App) deleteEmojiImage(id string) {
-	if err := a.MoveFile(getEmojiImagePath(id), "emoji/"+id+"/image_deleted"); err != nil {
+	if err := a.moveFile(getEmojiImagePath(id), "emoji/"+id+"/image_deleted"); err != nil {
 		mlog.Warn("Failed to rename image when deleting emoji", mlog.String("emoji_id", id))
 	}
 }

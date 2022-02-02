@@ -247,13 +247,13 @@ func (ch *Channels) initPlugins(c *request.Context, pluginDir, webappPluginDir s
 	ch.syncPluginsActiveState()
 }
 
-// SyncPlugins synchronizes the plugins installed locally
+// syncPlugins synchronizes the plugins installed locally
 // with the plugin bundles available in the file store.
-func (a *App) SyncPlugins() *model.AppError {
+func (a *App) syncPlugins() *model.AppError {
 	return a.ch.syncPlugins()
 }
 
-// SyncPlugins synchronizes the plugins installed locally
+// syncPlugins synchronizes the plugins installed locally
 // with the plugin bundles available in the file store.
 func (ch *Channels) syncPlugins() *model.AppError {
 	mlog.Info("Syncing plugins from the file store")

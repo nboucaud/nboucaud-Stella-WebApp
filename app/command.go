@@ -91,7 +91,7 @@ func (a *App) ListAutocompleteCommands(teamID string, T i18n.TranslateFunc) ([]*
 		seen[CmdCustomStatusTrigger] = true
 	}
 
-	for _, cmd := range a.PluginCommandsForTeam(teamID) {
+	for _, cmd := range a.pluginCommandsForTeam(teamID) {
 		if cmd.AutoComplete && !seen[cmd.Trigger] {
 			seen[cmd.Trigger] = true
 			commands = append(commands, cmd)
@@ -154,7 +154,7 @@ func (a *App) ListAllCommands(teamID string, T i18n.TranslateFunc) ([]*model.Com
 		}
 	}
 
-	for _, cmd := range a.PluginCommandsForTeam(teamID) {
+	for _, cmd := range a.pluginCommandsForTeam(teamID) {
 		if !seen[cmd.Trigger] {
 			seen[cmd.Trigger] = true
 			commands = append(commands, cmd)
@@ -612,8 +612,8 @@ func (a *App) HandleCommandResponsePost(c *request.Context, command *model.Comma
 
 	// Process Slack text replacements if the response does not contain "skip_slack_parsing": true.
 	if !response.SkipSlackParsing {
-		response.Text = a.ProcessSlackText(response.Text)
-		response.Attachments = a.ProcessSlackAttachments(response.Attachments)
+		response.Text = a.processSlackText(response.Text)
+		response.Attachments = a.processSlackAttachments(response.Attachments)
 	}
 
 	if _, err := a.CreateCommandPost(c, post, args.TeamId, response, response.SkipSlackParsing); err != nil {

@@ -87,7 +87,7 @@ func (a *App) runPluginsHook(c *request.Context, info *model.FileInfo, file io.R
 
 	if written > 0 {
 		info.Size = written
-		if fileErr := a.MoveFile(tmpPath, info.Path); fileErr != nil {
+		if fileErr := a.moveFile(tmpPath, info.Path); fileErr != nil {
 			return model.NewAppError("runPluginsHook", "app.upload.run_plugins_hook.move_fail",
 				nil, fileErr.Error(), http.StatusInternalServerError)
 		}
@@ -222,7 +222,7 @@ func (a *App) UploadData(c *request.Context, us *model.UploadSession, rd io.Read
 		}
 	} else if us.FileOffset < us.FileSize {
 		// resume upload
-		written, err = a.AppendFile(lr, uploadPath)
+		written, err = a.appendFile(lr, uploadPath)
 	}
 	if written > 0 {
 		us.FileOffset += written
@@ -277,11 +277,11 @@ func (a *App) UploadData(c *request.Context, us *model.UploadSession, rd io.Read
 		if fileErr != nil {
 			return nil, fileErr
 		}
-		a.HandleImages([]string{info.PreviewPath}, []string{info.ThumbnailPath}, [][]byte{imgData})
+		a.handleImages([]string{info.PreviewPath}, []string{info.ThumbnailPath}, [][]byte{imgData})
 	}
 
 	if us.Type == model.UploadTypeImport {
-		if err := a.MoveFile(uploadPath, us.Path); err != nil {
+		if err := a.moveFile(uploadPath, us.Path); err != nil {
 			return nil, model.NewAppError("UploadData", "app.upload.upload_data.move_file.app_error", nil, err.Error(), http.StatusInternalServerError)
 		}
 	}

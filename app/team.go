@@ -118,49 +118,6 @@ func (a *App) UpdateTeam(team *model.Team) (*model.Team, *model.AppError) {
 	return oldTeam, nil
 }
 
-// RenameTeam is used to rename the team Name and the DisplayName fields
-func (a *App) RenameTeam(team *model.Team, newTeamName string, newDisplayName string) (*model.Team, *model.AppError) {
-
-	// check if name is occupied
-	_, errnf := a.GetTeamByName(newTeamName)
-
-	// "-" can be used as a newTeamName if only DisplayName change is wanted
-	if errnf == nil && newTeamName != "-" {
-		errbody := fmt.Sprintf("team with name %s already exists", newTeamName)
-		return nil, model.NewAppError("RenameTeam", "app.team.rename_team.name_occupied", nil, errbody, http.StatusBadRequest)
-	}
-
-	if newTeamName != "-" {
-		team.Name = newTeamName
-	}
-
-	if newDisplayName != "" {
-		team.DisplayName = newDisplayName
-	}
-
-	newTeam, err := a.ch.srv.teamService.UpdateTeam(team, teams.UpdateOptions{})
-	if err != nil {
-		var invErr *store.ErrInvalidInput
-		var appErr *model.AppError
-		var domErr *teams.DomainError
-		var nfErr *store.ErrNotFound
-		switch {
-		case errors.As(err, &nfErr):
-			return nil, model.NewAppError("RenameTeam", "app.team.get.find.app_error", nil, nfErr.Error(), http.StatusNotFound)
-		case errors.As(err, &invErr):
-			return nil, model.NewAppError("RenameTeam", "app.team.update.find.app_error", nil, invErr.Error(), http.StatusBadRequest)
-		case errors.As(err, &appErr):
-			return nil, appErr
-		case errors.As(err, &domErr):
-			return nil, model.NewAppError("RenameTeam", "api.team.update_restricted_domains.mismatch.app_error", map[string]interface{}{"Domain": domErr.Domain}, "", http.StatusBadRequest)
-		default:
-			return nil, model.NewAppError("RenameTeam", "app.team.update.updating.app_error", nil, err.Error(), http.StatusInternalServerError)
-		}
-	}
-
-	return newTeam, nil
-}
-
 func (a *App) UpdateTeamScheme(team *model.Team) (*model.Team, *model.AppError) {
 	oldTeam, err := a.GetTeam(team.Id)
 	if err != nil {
@@ -295,7 +252,7 @@ func (a *App) sendTeamEvent(team *model.Team, event string) {
 	a.Publish(message)
 }
 
-func (a *App) GetSchemeRolesForTeam(teamID string) (string, string, string, *model.AppError) {
+func (a *App) getSchemeRolesForTeam(teamID string) (string, string, string, *model.AppError) {
 	team, err := a.GetTeam(teamID)
 	if err != nil {
 		return "", "", "", err
@@ -328,7 +285,7 @@ func (a *App) UpdateTeamMemberRoles(teamID string, userID string, newRoles strin
 		return nil, model.NewAppError("UpdateTeamMemberRoles", "api.team.update_member_roles.not_a_member", nil, "userId="+userID+" teamId="+teamID, http.StatusBadRequest)
 	}
 
-	schemeGuestRole, schemeUserRole, schemeAdminRole, err := a.GetSchemeRolesForTeam(teamID)
+	schemeGuestRole, schemeUserRole, schemeAdminRole, err := a.getSchemeRolesForTeam(teamID)
 	if err != nil {
 		return nil, err
 	}
@@ -409,7 +366,7 @@ func (a *App) UpdateTeamMemberSchemeRoles(teamID string, userID string, isScheme
 	}
 
 	// If the migration is not completed, we also need to check the default team_admin/team_user roles are not present in the roles field.
-	if err = a.IsPhase2MigrationCompleted(); err != nil {
+	if err = a.isPhase2MigrationCompleted(); err != nil {
 		member.ExplicitRoles = RemoveRoles([]string{model.TeamGuestRoleId, model.TeamUserRoleId, model.TeamAdminRoleId}, member.ExplicitRoles)
 	}
 
@@ -506,7 +463,7 @@ func (a *App) AddUserToTeamByTeamId(c *request.Context, teamID string, user *mod
 	return nil
 }
 
-func (a *App) AddUserToTeamByToken(c *request.Context, userID string, tokenID string) (*model.Team, *model.TeamMember, *model.AppError) {
+func (a *App) addUserToTeamByToken(c *request.Context, userID string, tokenID string) (*model.Team, *model.TeamMember, *model.AppError) {
 	token, err := a.Srv().Store.Token().GetByToken(tokenID)
 	if err != nil {
 		return nil, nil, model.NewAppError("AddUserToTeamByToken", "api.user.create_user.signup_link_invalid.app_error", nil, err.Error(), http.StatusBadRequest)
@@ -598,7 +555,7 @@ func (a *App) AddUserToTeamByToken(c *request.Context, userID string, tokenID st
 	return team, teamMember, nil
 }
 
-func (a *App) AddUserToTeamByInviteId(c *request.Context, inviteId string, userID string) (*model.Team, *model.TeamMember, *model.AppError) {
+func (a *App) addUserToTeamByInviteId(c *request.Context, inviteId string, userID string) (*model.Team, *model.TeamMember, *model.AppError) {
 	tchan := make(chan store.StoreResult, 1)
 	go func() {
 		team, err := a.Srv().Store.Team().GetByInviteId(inviteId)
@@ -704,7 +661,7 @@ func (a *App) JoinUserToTeam(c *request.Context, team *model.Team, user *model.U
 
 	if !user.IsGuest() {
 		// Soft error if there is an issue joining the default channels
-		if err := a.JoinDefaultChannels(c, team.Id, user, shouldBeAdmin, userRequestorId); err != nil {
+		if err := a.joinDefaultChannels(c, team.Id, user, shouldBeAdmin, userRequestorId); err != nil {
 			mlog.Warn(
 				"Encountered an issue joining default channels.",
 				mlog.String("user_id", user.Id),
@@ -801,24 +758,6 @@ func (a *App) GetAllTeamsPageWithCount(offset int, limit int, opts *model.TeamSe
 	return &model.TeamsWithCount{Teams: teams, TotalCount: totalCount}, nil
 }
 
-func (a *App) GetAllPrivateTeams() ([]*model.Team, *model.AppError) {
-	teams, err := a.Srv().Store.Team().GetAllPrivateTeamListing()
-	if err != nil {
-		return nil, model.NewAppError("GetAllPrivateTeams", "app.team.get_all_private_team_listing.app_error", nil, err.Error(), http.StatusInternalServerError)
-	}
-
-	return teams, nil
-}
-
-func (a *App) GetAllPublicTeams() ([]*model.Team, *model.AppError) {
-	teams, err := a.Srv().Store.Team().GetAllTeamListing()
-	if err != nil {
-		return nil, model.NewAppError("GetAllPublicTeams", "app.team.get_all_team_listing.app_error", nil, err.Error(), http.StatusInternalServerError)
-	}
-
-	return teams, nil
-}
-
 // SearchAllTeams returns a team list and the total count of the results
 func (a *App) SearchAllTeams(searchOpts *model.TeamSearch) ([]*model.Team, int64, *model.AppError) {
 	if searchOpts.IsPaginated() {
@@ -887,7 +826,7 @@ func (a *App) GetTeamMembersForUser(userID string) ([]*model.TeamMember, *model.
 	return teamMembers, nil
 }
 
-func (a *App) GetTeamMembersForUserWithPagination(userID string, page, perPage int) ([]*model.TeamMember, *model.AppError) {
+func (a *App) getTeamMembersForUserWithPagination(userID string, page, perPage int) ([]*model.TeamMember, *model.AppError) {
 	teamMembers, err := a.Srv().Store.Team().GetTeamsForUserWithPagination(userID, page, perPage)
 	if err != nil {
 		return nil, model.NewAppError("GetTeamMembersForUserWithPagination", "app.team.get_members.app_error", nil, err.Error(), http.StatusInternalServerError)
@@ -914,7 +853,7 @@ func (a *App) GetTeamMembersByIds(teamID string, userIDs []string, restrictions 
 	return teamMembers, nil
 }
 
-func (a *App) GetCommonTeamIDsForTwoUsers(userID, otherUserID string) ([]string, *model.AppError) {
+func (a *App) getCommonTeamIDsForTwoUsers(userID, otherUserID string) ([]string, *model.AppError) {
 	teamIDs, err := a.Srv().Store.Team().GetCommonTeamIDsForTwoUsers(userID, otherUserID)
 	if err != nil {
 		return nil, model.NewAppError("GetCommonTeamIDsForUsers", "app.team.get_common_team_ids_for_users.app_error", nil, err.Error(), http.StatusInternalServerError)
@@ -967,7 +906,7 @@ func (a *App) AddTeamMembers(c *request.Context, teamID string, userIDs []string
 }
 
 func (a *App) AddTeamMemberByToken(c *request.Context, userID, tokenID string) (*model.TeamMember, *model.AppError) {
-	_, teamMember, err := a.AddUserToTeamByToken(c, userID, tokenID)
+	_, teamMember, err := a.addUserToTeamByToken(c, userID, tokenID)
 	if err != nil {
 		return nil, err
 	}
@@ -976,7 +915,7 @@ func (a *App) AddTeamMemberByToken(c *request.Context, userID, tokenID string) (
 }
 
 func (a *App) AddTeamMemberByInviteId(c *request.Context, inviteId, userID string) (*model.TeamMember, *model.AppError) {
-	team, teamMember, err := a.AddUserToTeamByInviteId(c, inviteId, userID)
+	team, teamMember, err := a.addUserToTeamByInviteId(c, inviteId, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -1054,7 +993,7 @@ func (a *App) RemoveUserFromTeam(c *request.Context, teamID string, userID strin
 	}
 	user := result.Data.(*model.User)
 
-	if err := a.LeaveTeam(c, team, user, requestorId); err != nil {
+	if err := a.leaveTeam(c, team, user, requestorId); err != nil {
 		return err
 	}
 
@@ -1108,7 +1047,7 @@ func (a *App) postProcessTeamMemberLeave(c *request.Context, teamMember *model.T
 	return nil
 }
 
-func (a *App) LeaveTeam(c *request.Context, team *model.Team, user *model.User, requestorId string) *model.AppError {
+func (a *App) leaveTeam(c *request.Context, team *model.Team, user *model.User, requestorId string) *model.AppError {
 	teamMember, err := a.GetTeamMember(team.Id, user.Id)
 	if err != nil {
 		return model.NewAppError("LeaveTeam", "api.team.remove_user_from_team.missing.app_error", nil, err.Error(), http.StatusBadRequest)
@@ -1534,13 +1473,6 @@ func (a *App) InviteGuestsToChannels(teamID string, guestsInvite *model.GuestsIn
 	return nil
 }
 
-func (a *App) FindTeamByName(name string) bool {
-	if _, err := a.Srv().Store.Team().GetByName(name); err != nil {
-		return false
-	}
-	return true
-}
-
 func (a *App) GetTeamsUnreadForUser(excludeTeamId string, userID string, includeCollapsedThreads bool) ([]*model.TeamUnread, *model.AppError) {
 	data, err := a.Srv().Store.Team().GetChannelUnreadsForAllTeams(excludeTeamId, userID)
 	if err != nil {
@@ -1811,10 +1743,10 @@ func (a *App) SetTeamIcon(teamID string, imageData *multipart.FileHeader) *model
 		return model.NewAppError("SetTeamIcon", "api.team.set_team_icon.open.app_error", nil, err.Error(), http.StatusBadRequest)
 	}
 	defer file.Close()
-	return a.SetTeamIconFromMultiPartFile(teamID, file)
+	return a.setTeamIconFromMultiPartFile(teamID, file)
 }
 
-func (a *App) SetTeamIconFromMultiPartFile(teamID string, file multipart.File) *model.AppError {
+func (a *App) setTeamIconFromMultiPartFile(teamID string, file multipart.File) *model.AppError {
 	team, getTeamErr := a.GetTeam(teamID)
 
 	if getTeamErr != nil {
@@ -1830,10 +1762,10 @@ func (a *App) SetTeamIconFromMultiPartFile(teamID string, file multipart.File) *
 			nil, limitErr.Error(), http.StatusBadRequest)
 	}
 
-	return a.SetTeamIconFromFile(team, file)
+	return a.setTeamIconFromFile(team, file)
 }
 
-func (a *App) SetTeamIconFromFile(team *model.Team, file io.Reader) *model.AppError {
+func (a *App) setTeamIconFromFile(team *model.Team, file io.Reader) *model.AppError {
 	// Decode image into Image object
 	img, _, err := image.Decode(file)
 	if err != nil {

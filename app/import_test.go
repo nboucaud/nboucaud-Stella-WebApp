@@ -451,7 +451,7 @@ func BenchmarkBulkImport(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		err, _ := th.App.BulkImportWithPath(th.Context, jsonFile, nil, false, runtime.NumCPU(), dir)
+		err, _ := th.App.bulkImport(th.Context, jsonFile, nil, false, runtime.NumCPU(), dir)
 		require.Nil(b, err)
 	}
 	b.StopTimer()
@@ -489,7 +489,7 @@ func TestImportBulkImportWithAttachments(t *testing.T) {
 
 	th.App.UpdateConfig(func(cfg *model.Config) { cfg.TeamSettings.MaxUsersPerTeam = model.NewInt(1000) })
 
-	appErr, _ := th.App.BulkImportWithPath(th.Context, jsonFile, importZipReader, false, 1, ExportDataDir)
+	appErr, _ := th.App.bulkImport(th.Context, jsonFile, importZipReader, false, 1, ExportDataDir)
 	require.Nil(t, appErr)
 
 	adminUser, appErr := th.App.GetUserByUsername("sysadmin")

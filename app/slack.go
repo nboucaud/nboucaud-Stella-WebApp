@@ -34,7 +34,7 @@ func (a *App) SlackImport(c *request.Context, fileData multipart.File, fileSize 
 			return a.CreateChannel(c, channel, addMember)
 		},
 		DoUploadFile: func(now time.Time, rawTeamId string, rawChannelId string, rawUserId string, rawFilename string, data []byte) (*model.FileInfo, *model.AppError) {
-			return a.DoUploadFile(c, now, rawTeamId, rawChannelId, rawUserId, rawFilename, data)
+			return a.doUploadFile(c, now, rawTeamId, rawChannelId, rawUserId, rawFilename, data)
 		},
 		GenerateThumbnailImage: a.generateThumbnailImage,
 		GeneratePreviewImage:   a.generatePreviewImage,
@@ -53,7 +53,7 @@ func (a *App) SlackImport(c *request.Context, fileData multipart.File, fileSize 
 	return importer.SlackImport(fileData, fileSize, teamID)
 }
 
-func (a *App) ProcessSlackText(text string) string {
+func (a *App) processSlackText(text string) string {
 	text = expandAnnouncement(text)
 	text = replaceUserIds(a.Srv().Store.User(), text)
 
@@ -64,17 +64,17 @@ func (a *App) ProcessSlackText(text string) string {
 // can be found in the text attribute, or in the pretext, text, title and value
 // attributes of the attachment structure. The Slack attachment structure is
 // documented here: https://api.slack.com/docs/attachments
-func (a *App) ProcessSlackAttachments(attachments []*model.SlackAttachment) []*model.SlackAttachment {
+func (a *App) processSlackAttachments(attachments []*model.SlackAttachment) []*model.SlackAttachment {
 	var nonNilAttachments = model.StringifySlackFieldValue(attachments)
 	for _, attachment := range attachments {
-		attachment.Pretext = a.ProcessSlackText(attachment.Pretext)
-		attachment.Text = a.ProcessSlackText(attachment.Text)
-		attachment.Title = a.ProcessSlackText(attachment.Title)
+		attachment.Pretext = a.processSlackText(attachment.Pretext)
+		attachment.Text = a.processSlackText(attachment.Text)
+		attachment.Title = a.processSlackText(attachment.Title)
 
 		for _, field := range attachment.Fields {
 			if field != nil && field.Value != nil {
 				// Ensure the value is set to a string if it is set
-				field.Value = a.ProcessSlackText(fmt.Sprintf("%v", field.Value))
+				field.Value = a.processSlackText(fmt.Sprintf("%v", field.Value))
 			}
 		}
 	}

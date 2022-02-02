@@ -30,10 +30,6 @@ func (s *Server) NewClusterDiscoveryService() *ClusterDiscoveryService {
 	return ds
 }
 
-func (a *App) NewClusterDiscoveryService() *ClusterDiscoveryService {
-	return a.Srv().NewClusterDiscoveryService()
-}
-
 func (cds *ClusterDiscoveryService) Start() {
 	err := cds.srv.Store.ClusterDiscovery().Cleanup()
 	if err != nil {
