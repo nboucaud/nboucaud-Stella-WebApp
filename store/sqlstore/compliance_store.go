@@ -326,3 +326,55 @@ func (s SqlComplianceStore) MessageExport(cursor model.MessageExportCursor, limi
 	}
 	return cposts, cursor, nil
 }
+
+func (s SqlComplianceStore) BlocksExport(cursor model.BlockExportCursor, limit int) ([]*model.BlockExport, model.BlockExportCursor, error) {
+	var version int
+	schemaVersionRow := s.GetReplicaX().QueryRowX("select version from focalboard_schema_migrations")
+	if schemaVersionRow.Err() != nil {
+		return nil, cursor, schemaVersionRow.Err()
+	}
+	schemaVersionRow.Scan(&version)
+	if version != 16 {
+		return nil, cursor, fmt.Errorf("invalid focalboard version to export compliance, current=%d, expected=%d", version, 16)
+	}
+
+	var args []interface{}
+	args = append(args, cursor.LastBlockUpdateAt, cursor.LastBlockUpdateAt, cursor.LastBlockId, limit)
+	query :=
+		`SELECT
+			B.id as ID,
+			B.parent_id as ParentID,
+			B.root_id as RootID,
+			B.modified_by as ModifiedBy,
+			COALESCE(Users.Email, '') AS ModifiedByEmail,
+			COALESCE(Users.Username, '') as ModifiedByUsername,
+			B.type as Type,
+			B.title as Title,
+			COALESCE(B.fields, '{}') as Fields,
+			B.create_at as CreateAt,
+			B.update_at as UpdateAt,
+			B.delete_at as DeleteAt,
+			COALESCE(B.workspace_id, '0') as WorkspaceID
+		FROM
+			focalboard_blocks_history as B
+		LEFT OUTER JOIN Users ON B.modified_by = Users.Id
+		WHERE (
+			B.update_at > ?
+			OR (
+				B.update_at = ?
+				AND B.Id > ?
+			)
+		)
+		ORDER BY B.update_at, B.Id
+		LIMIT ?`
+
+	cblocks := []*model.BlockExport{}
+	if err := s.GetReplicaX().Select(&cblocks, query, args...); err != nil {
+		return nil, cursor, errors.Wrap(err, "unable to export blocks")
+	}
+	if len(cblocks) > 0 {
+		cursor.LastBlockUpdateAt = cblocks[len(cblocks)-1].UpdateAt
+		cursor.LastBlockId = cblocks[len(cblocks)-1].ID
+	}
+	return cblocks, cursor, nil
+}

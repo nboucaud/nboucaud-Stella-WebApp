@@ -40,6 +40,14 @@ var CsvExportCmd = &cobra.Command{
 	RunE:    buildExportCmdF("csv"),
 }
 
+var CsvWithBoardsExportCmd = &cobra.Command{
+	Use:     "csv-with-boards",
+	Short:   "Export data from Mattermost in CSV format (Include Boards information)",
+	Long:    "Export data from Mattermost in CSV format (Include Boards information)",
+	Example: "export csv-with-boards --exportFrom=12345",
+	RunE:    buildExportCmdF("csv-with-boards"),
+}
+
 var ActianceExportCmd = &cobra.Command{
 	Use:     "actiance",
 	Short:   "Export data from Mattermost in Actiance format",
@@ -71,6 +79,7 @@ func init() {
 	ScheduleExportCmd.Flags().Int("timeoutSeconds", -1, "The maximum number of seconds to wait for the job to complete before timing out.")
 
 	CsvExportCmd.Flags().Int64("exportFrom", -1, "The timestamp of the earliest post to export, expressed in seconds since the unix epoch.")
+	CsvWithBoardsExportCmd.Flags().Int64("exportFrom", -1, "The timestamp of the earliest post to export, expressed in seconds since the unix epoch.")
 
 	ActianceExportCmd.Flags().Int64("exportFrom", -1, "The timestamp of the earliest post to export, expressed in seconds since the unix epoch.")
 	GlobalRelayZipExportCmd.Flags().Int64("exportFrom", -1, "The timestamp of the earliest post to export, expressed in seconds since the unix epoch.")
@@ -81,6 +90,7 @@ func init() {
 
 	ExportCmd.AddCommand(ScheduleExportCmd)
 	ExportCmd.AddCommand(CsvExportCmd)
+	ExportCmd.AddCommand(CsvWithBoardsExportCmd)
 	ExportCmd.AddCommand(ActianceExportCmd)
 	ExportCmd.AddCommand(GlobalRelayZipExportCmd)
 	ExportCmd.AddCommand(BulkExportCmd)
@@ -150,11 +160,15 @@ func scheduleExportCmdF(command *cobra.Command, args []string) error {
 func buildExportCmdF(format string) func(command *cobra.Command, args []string) error {
 	return func(command *cobra.Command, args []string) error {
 		a, err := InitDBCommandContextCobra(command)
-		license := a.Srv().License()
 		if err != nil {
 			return err
 		}
 		defer a.Srv().Shutdown()
+
+		config := a.Srv().Config()
+		if format == model.ComplianceExportTypeCsvWithBoards && (config.PluginSettings.PluginStates["focalboard"] == nil || !config.PluginSettings.PluginStates["focalboard"].Enable) {
+			return errors.New(fmt.Sprintf("%s format is only available when the focalboard plugin is enabled", format))
+		}
 
 		startTime, err := command.Flags().GetInt64("exportFrom")
 		if err != nil {
@@ -164,6 +178,7 @@ func buildExportCmdF(format string) func(command *cobra.Command, args []string) 
 			return errors.New("exportFrom must be a positive integer")
 		}
 
+		license := a.Srv().License()
 		if a.MessageExport() == nil || license == nil || !*license.Features.MessageExport {
 			return errors.New("message export feature not available")
 		}
