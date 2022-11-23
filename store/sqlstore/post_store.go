@@ -267,6 +267,11 @@ func (s *SqlPostStore) SaveMultiple(posts []*model.Post) ([]*model.Post, int, er
 		}
 	}
 
+	if _, err := s.Hashtag().SaveMultipleForPosts(posts); err != nil {
+		mlog.Error("Failed to save post hashtags.", mlog.Err(err))
+		return nil, -1, err
+	}
+
 	return posts, -1, nil
 }
 
@@ -384,6 +389,10 @@ func (s *SqlPostStore) Update(newPost *model.Post, oldPost *model.Post) (*model.
 		return nil, errors.Wrap(err, "failed to insert the old post")
 	}
 
+	if err := s.Hashtag().UpdateOnPostEdit(oldPost, newPost); err != nil {
+		return nil, errors.Wrap(err, "failed to update hashtags")
+	}
+
 	return newPost, nil
 }
 
@@ -436,6 +445,10 @@ func (s *SqlPostStore) OverwriteMultiple(posts []*model.Post) (_ []*model.Post, 
 	err = tx.Commit()
 	if err != nil {
 		return nil, -1, errors.Wrap(err, "commit_transaction")
+	}
+
+	if err := s.Hashtag().UpdateOnPostOverwrite(posts); err != nil {
+		return nil, -1, errors.Wrap(err, "failed to update hashtags")
 	}
 
 	return posts, -1, nil
