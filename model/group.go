@@ -47,8 +47,8 @@ type Group struct {
 	ChannelMemberTimezonesCount *int        `db:"-" json:"channel_member_timezones_count,omitempty"`
 }
 
-func (group *Group) Auditable() map[string]interface{} {
-	return map[string]interface{}{
+func (group *Group) Auditable() map[string]any {
+	return map[string]any{
 		"id":              group.Id,
 		"source":          group.Source,
 		"remote_id":       group.RemoteId,
