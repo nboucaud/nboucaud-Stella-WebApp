@@ -10,6 +10,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -586,5 +588,67 @@ func TestGetAuthorizationCode(t *testing.T) {
 				assert.Regexp(t, tc.ExpectedSetCookieHeaderRegexp, cookies)
 			})
 		}
+	})
+
+	t.Run("configured with auth endpoint and query parameters ", func(t *testing.T) {
+		th := Setup(t)
+		defer th.TearDown()
+
+		t.Run("auth URL without query parameters", func(t *testing.T) {
+			th.App.UpdateConfig(func(cfg *model.Config) {
+				*cfg.GitLabSettings.Enable = true
+				*cfg.GitLabSettings.AuthEndpoint = "https://sample.gitlab.com"
+				*cfg.GitLabSettings.Scope = "email user"
+				*cfg.ServiceSettings.SiteURL = "https://mattermost.example.com"
+			})
+
+			request, _ := http.NewRequest(http.MethodGet, "https://mattermost.example.com", nil)
+
+			stateProps := map[string]string{
+				"email":  "email@example.com",
+				"action": "action",
+			}
+
+			recorder := httptest.ResponseRecorder{}
+			authUrl, err := th.App.GetAuthorizationCode(&recorder, request, model.ServiceGitlab, stateProps, "")
+			require.Nil(t, err)
+			assert.NotEmpty(t, authUrl)
+
+			parsedUrl, sErr := url.Parse(authUrl)
+			require.NoError(t, sErr)
+			// require no query parameter to have "?"
+			require.False(t, strings.Contains(parsedUrl.RawQuery, "?"), "should not malform query parameters")
+
+		})
+
+		t.Run("auth URL with query parameters", func(t *testing.T) {
+			th.App.UpdateConfig(func(cfg *model.Config) {
+				*cfg.GitLabSettings.Enable = true
+				*cfg.GitLabSettings.AuthEndpoint = "https://sample.gitlab.com?simply=lovely"
+				*cfg.GitLabSettings.Scope = "email user"
+				*cfg.ServiceSettings.SiteURL = "https://mattermost.example.com"
+			})
+
+			request, _ := http.NewRequest(http.MethodGet, "https://mattermost.example.com", nil)
+
+			stateProps := map[string]string{
+				"email":  "email@example.com",
+				"action": "action",
+			}
+
+			recorder := httptest.ResponseRecorder{}
+			authUrl, err := th.App.GetAuthorizationCode(&recorder, request, model.ServiceGitlab, stateProps, "")
+			require.Nil(t, err)
+			assert.NotEmpty(t, authUrl)
+
+			parsedUrl, sErr := url.Parse(authUrl)
+			require.NoError(t, sErr)
+			// require no query parameter to have "?"
+			require.False(t, strings.Contains(parsedUrl.RawQuery, "?"), "should not malform query parameters")
+
+			// require encoding to be correct
+			require.Equal(t, parsedUrl.Query().Get("scope"), "email user")
+			require.Equal(t, parsedUrl.Query().Get("simply"), "lovely")
+		})
 	})
 }

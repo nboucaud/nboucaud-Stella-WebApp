@@ -765,17 +765,30 @@ func (a *App) GetAuthorizationCode(w http.ResponseWriter, r *http.Request, servi
 
 	redirectURI := siteURL + "/signup/" + service + "/complete"
 
-	authURL := endpoint + "?response_type=code&client_id=" + clientId + "&redirect_uri=" + url.QueryEscape(redirectURI) + "&state=" + url.QueryEscape(state)
+	authURL, sErr := url.Parse(endpoint)
+	if sErr != nil {
+		return "", model.NewAppError("GetAuthorizationCode.ParseEndpoint", "api.user.get_authorization_code.endpoint_parse.app_error", nil, "failed to parse authentication endpoint URL", http.StatusBadRequest).Wrap(sErr)
+	}
+	queryParams := authURL.Query()
+	queryParams.Set("response_type", "code")
+	queryParams.Set("client_id", clientId)
+	queryParams.Set("redirect_uri", redirectURI)
+	queryParams.Set("state", state)
 
+	authURL.RawQuery = queryParams.Encode()
+	authURLString := authURL.String()
+
+	// Following params are being manually appended because URLEncode uses '%20' and QueryEscape uses +,
+	// Using QueryEscape here could be a breaking change for SSO Servers
 	if scope != "" {
-		authURL += "&scope=" + utils.URLEncode(scope)
+		authURLString += "&scope=" + utils.URLEncode(scope)
 	}
 
 	if loginHint != "" {
-		authURL += "&login_hint=" + utils.URLEncode(loginHint)
+		authURLString += "&login_hint=" + utils.URLEncode(loginHint)
 	}
 
-	return authURL, nil
+	return authURLString, nil
 }
 
 func (a *App) AuthorizeOAuthUser(w http.ResponseWriter, r *http.Request, service, code, state, redirectURI string) (io.ReadCloser, string, map[string]string, *model.User, *model.AppError) {
