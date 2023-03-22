@@ -789,8 +789,30 @@ func (a *App) HandleIncomingWebhook(c *request.Context, hookID string, req *mode
 		overrideIconURL = req.IconURL
 	}
 
-	_, err := a.CreateWebhookPost(c, hook.UserId, channel, text, overrideUsername, overrideIconURL, req.IconEmoji, req.Props, webhookType, "")
+	postingUserID, getBotUserIdErr := a.GetBotUserId(hook.UserId, req.Username)
+	if getBotUserIdErr != nil {
+		a.Log().Error("Error getting bot user: UserId="+hook.UserId+", Username="+req.Username+".", mlog.Err(getBotUserIdErr))
+	}
+	if postingUserID == "" {
+		postingUserID = hook.UserId
+	}
+
+	_, err := a.CreateWebhookPost(c, postingUserID, channel, text, overrideUsername, overrideIconURL, req.IconEmoji, req.Props, webhookType, "")
 	return err
+}
+
+func (a *App) GetBotUserId(userID string, botUsername string) (string, error) {
+	bots, err := a.Srv().Store().Bot().GetAll(&model.BotGetOptions{Page: 0, PerPage: 10})
+	if err != nil {
+		return "", err
+	}
+	for i := range bots {
+		bot := bots[i]
+		if bot.OwnerId == userID && bot.Username == botUsername {
+			return bot.UserId, nil
+		}
+	}
+	return "", nil
 }
 
 func (a *App) CreateCommandWebhook(commandID string, args *model.CommandArgs) (*model.CommandWebhook, *model.AppError) {
