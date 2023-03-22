@@ -185,8 +185,12 @@ func (a *App) JoinDefaultChannels(c request.CTX, teamID string, user *model.User
 
 		a.invalidateCacheForChannelMembers(channel.Id)
 
+		options := a.Config().GetSanitizeOptions()
+		user.SanitizeProfile(options)
+
 		message := model.NewWebSocketEvent(model.WebsocketEventUserAdded, "", channel.Id, "", nil, "")
 		message.Add("user_id", user.Id)
+		message.Add("user", user)
 		message.Add("team_id", channel.TeamId)
 		a.Publish(message)
 
@@ -295,11 +299,17 @@ func (a *App) CreateChannelWithUser(c request.CTX, channel *model.Channel, userI
 		return nil, err
 	}
 
+	var member *model.ChannelMember
+	if member, err = a.GetChannelMember(c, rchannel.Id, userID); err != nil {
+		return nil, err
+	}
+
 	a.postJoinChannelMessage(c, user, channel)
 
 	message := model.NewWebSocketEvent(model.WebsocketEventChannelCreated, "", "", userID, nil, "")
 	message.Add("channel_id", channel.Id)
 	message.Add("team_id", channel.TeamId)
+	message.Add("member", member)
 	a.Publish(message)
 
 	return rchannel, nil
@@ -1614,8 +1624,12 @@ func (a *App) AddUserToChannel(c request.CTX, user *model.User, channel *model.C
 		return nil, err
 	}
 
+	options := a.Config().GetSanitizeOptions()
+	user.SanitizeProfile(options)
+
 	message := model.NewWebSocketEvent(model.WebsocketEventUserAdded, "", channel.Id, "", nil, "")
 	message.Add("user_id", user.Id)
+	message.Add("user", user)
 	message.Add("team_id", channel.TeamId)
 	a.Publish(message)
 
