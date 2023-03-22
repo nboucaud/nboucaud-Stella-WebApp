@@ -5,10 +5,11 @@ package model
 
 import (
 	"encoding/json"
-	"io"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v6/utils/jsonutils"
+
+	"io"
 )
 
 const (
@@ -32,31 +33,44 @@ type CommandResponse struct {
 }
 
 func CommandResponseFromHTTPBody(contentType string, body io.Reader) (*CommandResponse, error) {
-	if strings.TrimSpace(strings.Split(contentType, ";")[0]) == "application/json" {
-		return CommandResponseFromJSON(body)
-	}
-	if b, err := io.ReadAll(body); err == nil {
-		return CommandResponseFromPlainText(string(b)), nil
-	}
-	return nil, nil
-}
-
-func CommandResponseFromPlainText(text string) *CommandResponse {
-	return &CommandResponse{
-		Text: text,
-	}
-}
-
-func CommandResponseFromJSON(data io.Reader) (*CommandResponse, error) {
-	b, err := io.ReadAll(data)
+	bodyRaw, err := io.ReadAll(body)
 	if err != nil {
+		return nil, nil
+	}
+
+	commandResponse, err := CommandResponseFromJSON(bodyRaw)
+	if err == nil {
+		return commandResponse, nil
+	}
+
+	if ContentTypeIs(contentType, "application/json") {
 		return nil, err
 	}
 
+	return &CommandResponse{
+		Text: string(bodyRaw),
+	}, nil
+}
+
+func getContentType(rawContentType string) string {
+	if strings.Contains(rawContentType, ";") {
+		typeWithoutCharset := strings.Split(rawContentType, ";")[0]
+		return strings.TrimSpace(typeWithoutCharset)
+	}
+	return strings.TrimSpace(rawContentType)
+}
+
+func ContentTypeIs(rawContentType string, expectedContentType string) bool {
+	givenContentType := getContentType(rawContentType)
+	return givenContentType == expectedContentType
+}
+
+func CommandResponseFromJSON(bodyRaw []byte) (*CommandResponse, error) {
+
 	var o CommandResponse
-	err = json.Unmarshal(b, &o)
+	err := json.Unmarshal(bodyRaw, &o)
 	if err != nil {
-		return nil, jsonutils.HumanizeJSONError(err, b)
+		return nil, jsonutils.HumanizeJSONError(err, bodyRaw)
 	}
 
 	o.Attachments = StringifySlackFieldValue(o.Attachments)

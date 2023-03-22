@@ -19,6 +19,9 @@ func TestCommandResponseFromHTTPBody(t *testing.T) {
 		{"", "foo", "foo"},
 		{"text/plain", "foo", "foo"},
 		{"application/json", `{"text": "foo"}`, "foo"},
+		{"x-www-form-urlencoded", `{"text": "foo"}`, "foo"},
+		{"any", `{"text": "foo"}`, "foo"},
+		{"", `{"text": "foo"}`, "foo"},
 		{"application/json; charset=utf-8", `{"text": "foo"}`, "foo"},
 		{"application/json", `{"text": "` + "```" + `haskell\nlet\n\nf1 = [ 3 | a <- [1]]\nf2 = [ 4 | b <- [2]]\nf3 = \\p -> 5\n\nin 1\n` + "```" + `", "skip_slack_parsing": true}`,
 			"```haskell\nlet\n\nf1 = [ 3 | a <- [1]]\nf2 = [ 4 | b <- [2]]\nf3 = \\p -> 5\n\nin 1\n```",
@@ -31,8 +34,9 @@ func TestCommandResponseFromHTTPBody(t *testing.T) {
 }
 
 func TestCommandResponseFromPlainText(t *testing.T) {
-	response := CommandResponseFromPlainText("foo")
+	response, err := CommandResponseFromHTTPBody("any", strings.NewReader("foo"))
 	assert.Equal(t, "foo", response.Text)
+	assert.NoError(t, err)
 }
 
 func TestCommandResponseFromJSON(t *testing.T) {
@@ -208,7 +212,7 @@ func TestCommandResponseFromJSON(t *testing.T) {
 		t.Run(testCase.Description, func(t *testing.T) {
 			t.Parallel()
 
-			response, err := CommandResponseFromJSON(strings.NewReader(testCase.Json))
+			response, err := CommandResponseFromJSON([]byte(testCase.Json))
 			if testCase.ShouldError {
 				assert.Nil(t, response)
 			} else {
