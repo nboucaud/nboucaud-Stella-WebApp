@@ -5,6 +5,9 @@ package app
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -12,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/utils/fileutils"
 )
 
 func TestCreateBot(t *testing.T) {
@@ -79,7 +83,7 @@ func TestCreateBot(t *testing.T) {
 			OwnerId:     th.BasicUser.Id,
 		})
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 		assert.Equal(t, "username", bot.Username)
 		assert.Equal(t, "a bot", bot.Description)
 		assert.Equal(t, th.BasicUser.Id, bot.OwnerId)
@@ -123,7 +127,7 @@ func TestPatchBot(t *testing.T) {
 			OwnerId:     th.BasicUser.Id,
 		})
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP("invalid username"),
@@ -146,7 +150,7 @@ func TestPatchBot(t *testing.T) {
 			OwnerId:     th.BasicUser.Id,
 		})
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP("username"),
@@ -172,7 +176,7 @@ func TestPatchBot(t *testing.T) {
 
 		createdBot, err := th.App.CreateBot(th.Context, bot)
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(createdBot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, createdBot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username:    sToP("username2"),
@@ -204,7 +208,7 @@ func TestPatchBot(t *testing.T) {
 			OwnerId:     th.BasicUser.Id,
 		})
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		botPatch := &model.BotPatch{
 			Username: sToP(th.BasicUser2.Username),
@@ -226,7 +230,7 @@ func TestGetBot(t *testing.T) {
 		OwnerId:     th.BasicUser.Id,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot1.UserId)
 
 	bot2, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username2",
@@ -234,7 +238,7 @@ func TestGetBot(t *testing.T) {
 		OwnerId:     th.BasicUser.Id,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot2.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot2.UserId)
 
 	deletedBot, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username3",
@@ -244,7 +248,7 @@ func TestGetBot(t *testing.T) {
 	require.Nil(t, err)
 	deletedBot, err = th.App.UpdateBotActive(th.Context, deletedBot.UserId, false)
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(deletedBot.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, deletedBot.UserId)
 
 	t.Run("get unknown bot", func(t *testing.T) {
 		_, err := th.App.GetBot(model.NewId(), false)
@@ -290,7 +294,7 @@ func TestGetBots(t *testing.T) {
 		OwnerId:     OwnerId1,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot1.UserId)
 
 	deletedBot1, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username4",
@@ -300,7 +304,7 @@ func TestGetBots(t *testing.T) {
 	require.Nil(t, err)
 	deletedBot1, err = th.App.UpdateBotActive(th.Context, deletedBot1.UserId, false)
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(deletedBot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, deletedBot1.UserId)
 
 	bot2, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username2",
@@ -308,7 +312,7 @@ func TestGetBots(t *testing.T) {
 		OwnerId:     OwnerId1,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot2.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot2.UserId)
 
 	bot3, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username3",
@@ -316,7 +320,7 @@ func TestGetBots(t *testing.T) {
 		OwnerId:     OwnerId1,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot3.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot3.UserId)
 
 	bot4, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username5",
@@ -324,7 +328,7 @@ func TestGetBots(t *testing.T) {
 		OwnerId:     OwnerId2,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(bot4.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, bot4.UserId)
 
 	deletedBot2, err := th.App.CreateBot(th.Context, &model.Bot{
 		Username:    "username6",
@@ -334,7 +338,7 @@ func TestGetBots(t *testing.T) {
 	require.Nil(t, err)
 	deletedBot2, err = th.App.UpdateBotActive(th.Context, deletedBot2.UserId, false)
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(deletedBot2.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, deletedBot2.UserId)
 
 	t.Run("get bots, page=0, perPage=10", func(t *testing.T) {
 		bots, err := th.App.GetBots(&model.BotGetOptions{
@@ -489,7 +493,7 @@ func TestUpdateBotActive(t *testing.T) {
 			OwnerId:     th.BasicUser.Id,
 		})
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(bot.UserId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
 
 		disabledBot, err := th.App.UpdateBotActive(th.Context, bot.UserId, false)
 		require.Nil(t, err)
@@ -522,7 +526,7 @@ func TestPermanentDeleteBot(t *testing.T) {
 	})
 	require.Nil(t, err)
 
-	require.Nil(t, th.App.PermanentDeleteBot(bot.UserId))
+	require.Nil(t, th.App.PermanentDeleteBot(th.Context, bot.UserId))
 
 	_, err = th.App.GetBot(bot.UserId, false)
 	require.NotNil(t, err)
@@ -539,7 +543,7 @@ func TestDisableUserBots(t *testing.T) {
 	bots := []*model.Bot{}
 	defer func() {
 		for _, bot := range bots {
-			th.App.PermanentDeleteBot(bot.UserId)
+			th.App.PermanentDeleteBot(th.Context, bot.UserId)
 		}
 	}()
 
@@ -560,7 +564,7 @@ func TestDisableUserBots(t *testing.T) {
 		OwnerId:     ownerId2,
 	})
 	require.Nil(t, err)
-	defer th.App.PermanentDeleteBot(u2bot1.UserId)
+	defer th.App.PermanentDeleteBot(th.Context, u2bot1.UserId)
 
 	err = th.App.disableUserBots(th.Context, ownerId1)
 	require.Nil(t, err)
@@ -593,7 +597,7 @@ func TestNotifySysadminsBotOwnerDisabled(t *testing.T) {
 	userBots := []*model.Bot{}
 	defer func() {
 		for _, bot := range userBots {
-			th.App.PermanentDeleteBot(bot.UserId)
+			th.App.PermanentDeleteBot(th.Context, bot.UserId)
 		}
 	}()
 
@@ -750,14 +754,187 @@ func TestConvertUserToBot(t *testing.T) {
 		th := Setup(t).InitBasic()
 		defer th.TearDown()
 
+		// create user to be converted to bot
+		user, err := th.App.CreateUser(th.Context, &model.User{
+			Email:    "user1@example.com",
+			Username: "user1_to_bot",
+			Nickname: "user1",
+			Password: "Password1",
+		})
+		require.Nil(t, err)
+
+		bot, err := th.App.ConvertUserToBot(&model.User{
+			Username: user.Username,
+			Id:       user.Id,
+		})
+		require.Nil(t, err)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
+		assert.Equal(t, "user1_to_bot", bot.Username)
+		assert.Equal(t, user.Id, bot.OwnerId)
+	})
+}
+
+func TestSetBotIconImage(t *testing.T) {
+	t.Run("invalid bot", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		path, _ := fileutils.FindDir("tests")
+		svgFile, fileErr := os.Open(filepath.Join(path, "test.svg"))
+		require.NoError(t, fileErr)
+		defer svgFile.Close()
+
+		err := th.App.SetBotIconImage("invalid_bot_id", svgFile)
+		require.NotNil(t, err)
+	})
+
+	t.Run("valid bot", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		// Set an icon image
+		path, _ := fileutils.FindDir("tests")
+		svgFile, fileErr := os.Open(filepath.Join(path, "test.svg"))
+		require.NoError(t, fileErr)
+		defer svgFile.Close()
+
+		expectedData, fileErr := ioutil.ReadAll(svgFile)
+		require.NoError(t, fileErr)
+		require.NotNil(t, expectedData)
+
+		bot, err := th.App.CreateBot(th.Context, &model.Bot{
+			Username:    "username",
+			DisplayName: "bot",
+			Description: "a bot",
+			OwnerId:     th.BasicUser.Id,
+		})
+		require.Nil(t, err)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
+
+		fpath := fmt.Sprintf("/bots/%v/icon.svg", bot.UserId)
+		exists, err := th.App.FileExists(fpath)
+		require.Nil(t, err)
+		require.False(t, exists, "icon.svg shouldn't exist for the bot")
+
+		svgFile.Seek(0, 0)
+		err = th.App.SetBotIconImage(bot.UserId, svgFile)
+		require.Nil(t, err)
+
+		exists, err = th.App.FileExists(fpath)
+		require.Nil(t, err)
+		require.True(t, exists, "icon.svg should exist for the bot")
+
+		actualData, err := th.App.ReadFile(fpath)
+		require.Nil(t, err)
+		require.NotNil(t, actualData)
+
+		require.Equal(t, expectedData, actualData)
+	})
+}
+
+func TestGetBotIconImage(t *testing.T) {
+	t.Run("invalid bot", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		actualData, err := th.App.GetBotIconImage("invalid_bot_id")
+		require.NotNil(t, err)
+		require.Nil(t, actualData)
+	})
+
+	t.Run("valid bot", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		// Set an icon image
+		path, _ := fileutils.FindDir("tests")
+		svgFile, fileErr := os.Open(filepath.Join(path, "test.svg"))
+		require.NoError(t, fileErr)
+		defer svgFile.Close()
+
+		expectedData, fileErr := ioutil.ReadAll(svgFile)
+		require.NoError(t, fileErr)
+		require.NotNil(t, expectedData)
+
 		bot, err := th.App.ConvertUserToBot(&model.User{
 			Username: "username",
 			Id:       th.BasicUser.Id,
 		})
 		require.Nil(t, err)
-		defer th.App.PermanentDeleteBot(bot.UserId)
-		assert.Equal(t, "username", bot.Username)
-		assert.Equal(t, th.BasicUser.Id, bot.OwnerId)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
+
+		svgFile.Seek(0, 0)
+		fpath := fmt.Sprintf("/bots/%v/icon.svg", bot.UserId)
+		_, err = th.App.WriteFile(svgFile, fpath)
+		require.Nil(t, err)
+
+		actualBytes, err := th.App.GetBotIconImage(bot.UserId)
+		require.Nil(t, err)
+		require.NotNil(t, actualBytes)
+
+		actualData, err := th.App.ReadFile(fpath)
+		require.Nil(t, err)
+		require.NotNil(t, actualData)
+
+		require.Equal(t, expectedData, actualData)
+	})
+}
+
+func TestDeleteBotIconImage(t *testing.T) {
+	t.Run("invalid bot", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		err := th.App.DeleteBotIconImage("invalid_bot_id")
+		require.NotNil(t, err)
+	})
+
+	t.Run("valid bot", func(t *testing.T) {
+		th := Setup(t).InitBasic()
+		defer th.TearDown()
+
+		// Set an icon image
+		path, _ := fileutils.FindDir("tests")
+		svgFile, fileErr := os.Open(filepath.Join(path, "test.svg"))
+		require.NoError(t, fileErr)
+		defer svgFile.Close()
+
+		expectedData, fileErr := ioutil.ReadAll(svgFile)
+		require.NoError(t, fileErr)
+		require.NotNil(t, expectedData)
+
+		bot, err := th.App.ConvertUserToBot(&model.User{
+			Username: "username",
+			Id:       th.BasicUser.Id,
+		})
+		require.Nil(t, err)
+		defer th.App.PermanentDeleteBot(th.Context, bot.UserId)
+
+		// Set icon
+		svgFile.Seek(0, 0)
+		err = th.App.SetBotIconImage(bot.UserId, svgFile)
+		require.Nil(t, err)
+
+		// Get icon
+		actualData, err := th.App.GetBotIconImage(bot.UserId)
+		require.Nil(t, err)
+		require.NotNil(t, actualData)
+		require.Equal(t, expectedData, actualData)
+
+		// Bot icon should exist
+		fpath := fmt.Sprintf("/bots/%v/icon.svg", bot.UserId)
+		exists, err := th.App.FileExists(fpath)
+		require.Nil(t, err)
+		require.True(t, exists, "icon.svg should exist for the bot")
+
+		// Delete icon
+		err = th.App.DeleteBotIconImage(bot.UserId)
+		require.Nil(t, err)
+
+		// Bot icon should not exist
+		exists, err = th.App.FileExists(fpath)
+		require.Nil(t, err)
+		require.False(t, exists, "icon.svg should be deleted for the bot")
 	})
 }
 
