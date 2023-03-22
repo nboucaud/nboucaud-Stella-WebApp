@@ -301,17 +301,31 @@ func (ps *PlatformService) SetStatusOnline(userID string, manual bool) {
 	}
 }
 
-func (ps *PlatformService) SetStatusOffline(userID string, manual bool) {
+func (ps *PlatformService) SetStatusOffline(userID string, manual bool, updateLastActivityAt bool) {
 	if !*ps.Config().ServiceSettings.EnableUserStatuses {
 		return
 	}
 
 	status, err := ps.GetStatus(userID)
+
+	lastActivityAt := model.GetMillis()
+
+	// if it's a user with no activity, set LastActivityAt = 0 when automatically updating status
+	if !updateLastActivityAt {
+		// if there is no previous status - as is the case when user is new and deleted
+		if err != nil && err.Id == "app.status.get.missing.app_error" {
+			lastActivityAt = 0
+		}
+		if status != nil {
+			lastActivityAt = status.LastActivityAt
+		}
+	}
+
 	if err == nil && status.Manual && !manual {
 		return // manually set status always overrides non-manual one
 	}
 
-	status = &model.Status{UserId: userID, Status: model.StatusOffline, Manual: manual, LastActivityAt: model.GetMillis(), ActiveChannel: ""}
+	status = &model.Status{UserId: userID, Status: model.StatusOffline, Manual: manual, LastActivityAt: lastActivityAt, ActiveChannel: ""}
 
 	ps.SaveAndBroadcastStatus(status)
 }

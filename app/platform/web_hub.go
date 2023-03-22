@@ -437,7 +437,7 @@ func (h *Hub) Start() {
 				conns := connIndex.ForUser(webConn.UserId)
 				if len(conns) == 0 || areAllInactive(conns) {
 					h.platform.Go(func() {
-						h.platform.SetStatusOffline(webConn.UserId, false)
+						h.platform.SetStatusOffline(webConn.UserId, false, true)
 					})
 					continue
 				}
@@ -520,7 +520,7 @@ func (h *Hub) Start() {
 			case <-h.stop:
 				for webConn := range connIndex.All() {
 					webConn.Close()
-					h.platform.SetStatusOffline(webConn.UserId, false)
+					h.platform.SetStatusOffline(webConn.UserId, false, true)
 				}
 
 				h.explicitStop = true

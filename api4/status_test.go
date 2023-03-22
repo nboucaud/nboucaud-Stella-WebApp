@@ -70,7 +70,7 @@ func TestGetUserStatus(t *testing.T) {
 	})
 
 	t.Run("back to offline status", func(t *testing.T) {
-		th.App.SetStatusOffline(th.BasicUser.Id, true)
+		th.App.SetStatusOffline(th.BasicUser.Id, true, true)
 		userStatus, _, err := client.GetUserStatus(th.BasicUser.Id, "")
 		require.NoError(t, err)
 		assert.Equal(t, "offline", userStatus.Status)
@@ -231,6 +231,21 @@ func TestUpdateUserStatus(t *testing.T) {
 		_, resp, err := client.UpdateUserStatus(th.BasicUser.Id, toUpdateUserStatus)
 		require.Error(t, err)
 		CheckBadRequestStatus(t, resp)
+	})
+
+	t.Run("deleting a user instantly after creating creates status entry with lastactivityat = 0", func(t *testing.T) {
+		// create user
+		user := th.CreateUser()
+		status, _, err := client.GetUserStatus(user.Id, "")
+		require.NoError(t, err)
+		// GetUserStatus creates an entry in statuses table if there is none, best way to test if activity is recorded is to ensure
+		// lastactivityat field is 0
+		require.Equal(t, status.LastActivityAt, int64(0))
+		th.App.PermanentDeleteUser(th.Context, user)
+		// deleting a user shouldn't update lastactivityat
+		status, _, err = client.GetUserStatus(user.Id, "")
+		require.NoError(t, err)
+		require.Equal(t, status.LastActivityAt, int64(0))
 	})
 
 	t.Run("get statuses from logged out user", func(t *testing.T) {

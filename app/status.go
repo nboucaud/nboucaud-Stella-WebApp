@@ -28,8 +28,8 @@ func (a *App) SetStatusOnline(userID string, manual bool) {
 	a.Srv().Platform().SetStatusOnline(userID, manual)
 }
 
-func (a *App) SetStatusOffline(userID string, manual bool) {
-	a.Srv().Platform().SetStatusOffline(userID, manual)
+func (a *App) SetStatusOffline(userID string, manual bool, updateLastActivityAt bool) {
+	a.Srv().Platform().SetStatusOffline(userID, manual, updateLastActivityAt)
 }
 
 func (a *App) SetStatusAwayIfNeeded(userID string, manual bool) {
