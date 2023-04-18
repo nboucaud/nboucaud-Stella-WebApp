@@ -425,6 +425,10 @@ export default class Client4 {
         return `${this.getBaseRoute()}/data_retention`;
     }
 
+    getDebugBarRoute() {
+        return `${this.getBaseRoute()}/debugbar`;
+    }
+
     getJobsRoute() {
         return `${this.getBaseRoute()}/jobs`;
     }
@@ -2974,6 +2978,21 @@ export default class Client4 {
         return this.doFetch<DataRetentionCustomPolicies>(
             `${this.getDataRetentionRoute()}/policies/${id}/channels`,
             {method: 'delete', body: JSON.stringify(channels)},
+        );
+    };
+
+    // DebugBar Routes
+    getDebugBarSystemInfo = () => {
+        return this.doFetch<any>(
+            `${this.getDebugBarRoute()}/systeminfo`,
+            {method: 'get'},
+        );
+    };
+
+    getExplainQuery = (query: string, args: any[]) => {
+        return this.doFetch<any>(
+            `${this.getDebugBarRoute()}/queryexplain`,
+            {method: 'post', body: JSON.stringify({query, args})},
         );
     };
 
