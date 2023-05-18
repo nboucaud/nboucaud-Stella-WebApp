@@ -855,6 +855,54 @@ describe('components/advanced_create_post', () => {
             }),
         );
 
+	const currentDraft = {
+	    ...draftProp,
+	    fileInfos: [
+		{id: 'a',
+	    ],
+	};
+        const instance = wrapper.instance();
+        const clientIds = ['a'];
+        const uploadsInProgressDraft = {
+            ...currentDraft,
+            uploadsInProgress: [
+                ...draftProp.uploadsInProgress,
+                'b',
+            ],
+        };
+
+        instance.draftsForChannel[currentChannelProp.id] = uploadsInProgressDraft;
+
+        wrapper.setProps({draft: uploadsInProgressDraft});
+        const fileInfos = {
+            id: 'b',
+        };
+        const expectedDraft = {
+            ...currentDraft,
+            fileInfos: [
+                ...currentDraft.fileInfos,
+                fileInfos,
+            ],
+        };
+
+        instance.handleFileUploadComplete(fileInfos, clientIds, currentChannelProp.id);
+
+        jest.advanceTimersByTime(Constants.SAVE_DRAFT_TIMEOUT);
+        expect(setDraft).toHaveBeenCalledWith(StoragePrefixes.DRAFT + currentChannelProp.id, expectedDraft, currentChannelProp.id);
+    });
+
+    it('check for handleFileUploadComplete callback without previous draft files', () => {
+        const setDraft = jest.fn();
+
+        const wrapper = shallow(
+            advancedCreatePost({
+                actions: {
+                    ...actionsProp,
+                    setDraft,
+                },
+            }),
+        );
+
         const instance = wrapper.instance();
         const clientIds = ['a'];
         const uploadsInProgressDraft = {
@@ -873,10 +921,7 @@ describe('components/advanced_create_post', () => {
         };
         const expectedDraft = {
             ...draftProp,
-            fileInfos: [
-                ...draftProp.fileInfos,
-                fileInfos,
-            ],
+            fileInfos,
         };
 
         instance.handleFileUploadComplete(fileInfos, clientIds, currentChannelProp.id);
@@ -884,7 +929,7 @@ describe('components/advanced_create_post', () => {
         jest.advanceTimersByTime(Constants.SAVE_DRAFT_TIMEOUT);
         expect(setDraft).toHaveBeenCalledWith(StoragePrefixes.DRAFT + currentChannelProp.id, expectedDraft, currentChannelProp.id);
     });
-
+    
     it('check for handleUploadError callback', () => {
         const setDraft = jest.fn();
 

@@ -235,7 +235,7 @@ type Props = {
         //Function used to advance the tutorial forward
         savePreferences: (userId: string, preferences: PreferenceType[]) => ActionResult;
 
-        searchAssociatedGroupsForReference: (prefix: string, teamId: string, channelId: string | undefined) => Promise<{ data: any }>;
+        searchAssociatedGroupsForReference: (prefix: string, teamId: string, channelId: string | undefined) => Promise<{data: any}>;
     };
 
     groupsWithAllowReference: Map<string, Group> | null;
@@ -1014,7 +1014,7 @@ class AdvancedCreatePost extends React.PureComponent<Props, State> {
             }
         }
 
-        if (draft.fileInfos) {
+        if (fileInfos || draft.fileInfos) {
             draft.fileInfos = sortFileInfos(draft.fileInfos.concat(fileInfos), this.props.locale);
         }
 
@@ -1616,7 +1616,7 @@ class AdvancedCreatePost extends React.PureComponent<Props, State> {
                                     </Tooltip>
                                 )}
                             >
-                                <CheckCircleOutlineIcon size={14}/>
+                                <CheckCircleOutlineIcon size={14} />
                             </OverlayTrigger>
                             {!(this.props.draft.metadata!.priority!.priority) && (
                                 <FormattedMessage
@@ -1671,7 +1671,7 @@ class AdvancedCreatePost extends React.PureComponent<Props, State> {
                 {
                     this.props.canPost &&
                     (this.props.draft.fileInfos.length > 0 || this.props.draft.uploadsInProgress.length > 0) &&
-                    <FileLimitStickyBanner/>
+                    <FileLimitStickyBanner />
                 }
                 <AdvancedTextEditor
                     location={Locations.CENTER}
