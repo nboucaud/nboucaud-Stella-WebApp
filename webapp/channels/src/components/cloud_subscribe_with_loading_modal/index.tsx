@@ -6,7 +6,7 @@ import {FormattedMessage} from 'react-intl';
 import {RouteComponentProps, withRouter} from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
 
-import {ModalIdentifiers} from 'utils/constants';
+import {ModalIdentifiers, TELEMETRY_CATEGORIES, TELEMETRY_EVENT} from 'utils/constants';
 import {GlobalState} from 'types/store';
 import {subscribeCloudSubscription} from 'actions/cloud';
 import {closeModal} from 'actions/views/modals';
@@ -24,6 +24,8 @@ import {
     archiveAllTeamsExcept,
 } from 'mattermost-redux/actions/teams';
 import {DispatchFunc} from 'mattermost-redux/types/actions';
+
+import {trackEvent} from 'actions/telemetry_actions';
 
 type Props = RouteComponentProps & {
     onBack: () => void;
@@ -159,6 +161,7 @@ function CloudSubscribeWithLoad(props: Props) {
                 tertiaryButtonHandler={() => {
                     handleClose();
                     props.history.push('/admin_console/billing/subscription');
+                    trackEvent(TELEMETRY_CATEGORIES.SYSTEM_ADMIN, TELEMETRY_EVENT.SYSTEM_CONSOLE_VISIT, {location: 'cloud_subscribe_with_loading_modal'});
                 }}
             />
         );

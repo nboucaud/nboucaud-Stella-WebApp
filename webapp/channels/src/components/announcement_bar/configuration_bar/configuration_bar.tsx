@@ -6,7 +6,7 @@ import {FormattedMessage, injectIntl, IntlShape} from 'react-intl';
 import {Link} from 'react-router-dom';
 
 import {daysToLicenseExpire, isLicenseExpired, isLicenseExpiring, isLicensePastGracePeriod, isTrialLicense} from 'utils/license_utils';
-import {AnnouncementBarTypes, AnnouncementBarMessages, WarnMetricTypes, Preferences, ConfigurationBanners, Constants, TELEMETRY_CATEGORIES} from 'utils/constants';
+import {AnnouncementBarTypes, AnnouncementBarMessages, WarnMetricTypes, Preferences, ConfigurationBanners, Constants, TELEMETRY_CATEGORIES, TELEMETRY_EVENT} from 'utils/constants';
 import {t} from 'utils/i18n';
 
 import PurchaseLink from 'components/announcement_bar/purchase_link/purchase_link';
@@ -405,7 +405,10 @@ const ConfigurationAnnouncementBar = (props: Props) => {
                 </ExternalLink>
             ),
             linkConsole: (msg: string) => (
-                <Link to='/admin_console/environment/web_server'>
+                <Link
+                    to='/admin_console/environment/web_server'
+                    onClick={() => trackEvent(TELEMETRY_CATEGORIES.SYSTEM_ADMIN, TELEMETRY_EVENT.SYSTEM_CONSOLE_VISIT, {location: 'configuration_bar'})}
+                >
                     {msg}
                 </Link>
             ),

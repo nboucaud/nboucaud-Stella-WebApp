@@ -16,6 +16,7 @@ import AnnouncementBarController from 'components/announcement_bar';
 import SystemNotice from 'components/system_notice';
 import {LhsItemType} from 'types/store/lhs';
 import {applyTheme, resetTheme} from 'utils/utils';
+import {TELEMETRY_CATEGORIES, TELEMETRY_EVENT} from 'utils/constants';
 
 import {Role} from '@mattermost/types/roles';
 import {CloudState, Product} from '@mattermost/types/cloud';
@@ -26,6 +27,7 @@ import AdminSidebar from './admin_sidebar';
 import Highlight from './highlight';
 
 import type {PropsFromRedux} from './index';
+import {trackEvent} from 'actions/telemetry_actions';
 
 export interface Props extends PropsFromRedux {
     match: {url: string};
@@ -83,6 +85,7 @@ export default class AdminConsole extends React.PureComponent<Props, State> {
         document.body.classList.add('console__body');
         document.getElementById('root')?.classList.add('console__root');
         resetTheme();
+        this.trackConsoleLoad();
     }
 
     public componentWillUnmount(): void {
@@ -90,6 +93,20 @@ export default class AdminConsole extends React.PureComponent<Props, State> {
         document.getElementById('root')?.classList.remove('console__root');
         applyTheme(this.props.currentTheme);
     }
+
+    // trackConsoleLoad is used to do telemetry of the system console visits from external events such as clicks from email templates
+    private trackConsoleLoad = () => {
+        const url = new URL(document.location.href);
+        const params = new URLSearchParams(url.search);
+        const trackingParamName = 'trackingLocation';
+
+        if (params.get(trackingParamName)) {
+            trackEvent(TELEMETRY_CATEGORIES.SYSTEM_ADMIN, TELEMETRY_EVENT.SYSTEM_CONSOLE_VISIT, {location: params.get(trackingParamName)});
+            params.delete(trackingParamName);
+            url.search = params.toString();
+            window.history.replaceState(null, '', url.href);
+        }
+    };
 
     private onFilterChange = (filter: string) => {
         this.setState({filter});
