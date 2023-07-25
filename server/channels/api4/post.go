@@ -987,7 +987,7 @@ func setPostReminder(c *Context, w http.ResponseWriter, r *http.Request) {
 	ReturnStatusOK(w)
 }
 
-func saveIsPinnedPost(c *Context, w http.ResponseWriter, isPinned bool) {
+func saveIsPinnedPost(c *Context, w http.ResponseWriter, isPinned bool, pinAt *int64) {
 	c.RequirePostId()
 	if c.Err != nil {
 		return
@@ -1012,6 +1012,10 @@ func saveIsPinnedPost(c *Context, w http.ResponseWriter, isPinned bool) {
 
 	patch := &model.PostPatch{}
 	patch.IsPinned = model.NewBool(isPinned)
+	patch.PinAt = pinAt
+	if pinAt != nil {
+		patch.PinBy = model.NewString(c.AppContext.Session().UserId)
+	}
 
 	patchedPost, err := c.App.PatchPost(c.AppContext, c.Params.PostId, patch)
 	if err != nil {
@@ -1025,11 +1029,11 @@ func saveIsPinnedPost(c *Context, w http.ResponseWriter, isPinned bool) {
 }
 
 func pinPost(c *Context, w http.ResponseWriter, _ *http.Request) {
-	saveIsPinnedPost(c, w, true)
+	saveIsPinnedPost(c, w, true, model.NewInt64(time.Now().Unix()))
 }
 
 func unpinPost(c *Context, w http.ResponseWriter, _ *http.Request) {
-	saveIsPinnedPost(c, w, false)
+	saveIsPinnedPost(c, w, false, nil)
 }
 
 func acknowledgePost(c *Context, w http.ResponseWriter, r *http.Request) {

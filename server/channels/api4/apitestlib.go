@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"math/rand"
 	"net"
 	"net/http"
@@ -763,6 +764,7 @@ func (th *TestHelper) CreatePinnedPostWithClient(client *model.Client4, channel 
 		ChannelId: channel.Id,
 		Message:   "message_" + id,
 		IsPinned:  true,
+		PinAt:     model.NewInt64(math.MaxInt64),
 	}
 
 	rpost, _, err := client.CreatePost(context.Background(), post)

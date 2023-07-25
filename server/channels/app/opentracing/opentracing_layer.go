@@ -5475,6 +5475,28 @@ func (a *OpenTracingAppLayer) GetChannelModerationsForChannel(c request.CTX, cha
 	return resultVar0, resultVar1
 }
 
+func (a *OpenTracingAppLayer) GetChannelNewPinnedPosts(c request.CTX, channelID string, userID string) ([]*model.Post, *model.AppError) {
+	origCtx := a.ctx
+	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.GetChannelNewPinnedPosts")
+
+	a.ctx = newCtx
+	a.app.Srv().Store().SetContext(newCtx)
+	defer func() {
+		a.app.Srv().Store().SetContext(origCtx)
+		a.ctx = origCtx
+	}()
+
+	defer span.Finish()
+	resultVar0, resultVar1 := a.app.GetChannelNewPinnedPosts(c, channelID, userID)
+
+	if resultVar1 != nil {
+		span.LogFields(spanlog.Error(resultVar1))
+		ext.Error.Set(span, true)
+	}
+
+	return resultVar0, resultVar1
+}
+
 func (a *OpenTracingAppLayer) GetChannelPinnedPostCount(c request.CTX, channelID string) (int64, *model.AppError) {
 	origCtx := a.ctx
 	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.GetChannelPinnedPostCount")
@@ -17348,6 +17370,28 @@ func (a *OpenTracingAppLayer) UpdateChannel(c request.CTX, channel *model.Channe
 
 	defer span.Finish()
 	resultVar0, resultVar1 := a.app.UpdateChannel(c, channel)
+
+	if resultVar1 != nil {
+		span.LogFields(spanlog.Error(resultVar1))
+		ext.Error.Set(span, true)
+	}
+
+	return resultVar0, resultVar1
+}
+
+func (a *OpenTracingAppLayer) UpdateChannelMemberLastViewedPinnedPostAt(c request.CTX, channelID string, userID string, lastViewedPinnedPostAt int64) (*model.ChannelMember, *model.AppError) {
+	origCtx := a.ctx
+	span, newCtx := tracing.StartSpanWithParentByContext(a.ctx, "app.UpdateChannelMemberLastViewedPinnedPostAt")
+
+	a.ctx = newCtx
+	a.app.Srv().Store().SetContext(newCtx)
+	defer func() {
+		a.app.Srv().Store().SetContext(origCtx)
+		a.ctx = origCtx
+	}()
+
+	defer span.Finish()
+	resultVar0, resultVar1 := a.app.UpdateChannelMemberLastViewedPinnedPostAt(c, channelID, userID, lastViewedPinnedPostAt)
 
 	if resultVar1 != nil {
 		span.LogFields(spanlog.Error(resultVar1))

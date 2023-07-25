@@ -407,6 +407,8 @@ type PostStore interface {
 
 	// Insights - top DMs
 	GetTopDMsForUserSince(userID string, since int64, offset int, limit int) (*model.TopDMList, error)
+
+	GetNewPinnedPosts(channelID string, userID string) ([]*model.Post, error)
 }
 
 type UserStore interface {
