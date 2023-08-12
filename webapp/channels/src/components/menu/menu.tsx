@@ -67,6 +67,7 @@ interface Props {
     menuButtonTooltip?: MenuButtonTooltipProps;
     menu: MenuProps;
     children: ReactNode[];
+    onMenuModalClose: () => void
 }
 
 /**
@@ -106,6 +107,7 @@ export function Menu(props: Props) {
     function handleMenuModalClose(modalId: MenuProps['id']) {
         dispatch(closeModal(modalId));
         setAnchorElement(null);
+        props.onMenuModalClose();
     }
 
     // Stop sythetic events from bubbling up to the parent
