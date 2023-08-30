@@ -230,7 +230,6 @@ func New(settings model.SqlSettings, metrics einterfaces.MetricsInterface) (*Sql
 	store.stores.postPersistentNotification = newSqlPostPersistentNotificationStore(store)
 	store.stores.trueUpReview = newSqlTrueUpReviewStore(store)
 
-	store.stores.preference.(*SqlPreferenceStore).deleteUnusedFeatures()
 
 	return store, nil
 }

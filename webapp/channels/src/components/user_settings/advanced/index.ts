@@ -23,7 +23,6 @@ function makeMapStateToProps() {
     return (state: GlobalState) => {
         const config = getConfig(state);
 
-        const enablePreviewFeatures = config.EnablePreviewFeatures === 'true';
         const enableUserDeactivation = config.EnableUserDeactivation === 'true';
         const enableJoinLeaveMessage = config.EnableJoinLeaveMessageByDefault === 'true';
 
@@ -36,7 +35,6 @@ function makeMapStateToProps() {
             syncDrafts: get(state, Preferences.CATEGORY_ADVANCED_SETTINGS, 'sync_drafts', 'true'),
             currentUser: getCurrentUser(state),
             unreadScrollPosition: getUnreadScrollPositionPreference(state),
-            enablePreviewFeatures,
             enableUserDeactivation,
             syncedDraftsAreAllowed: syncedDraftsAreAllowed(state),
         };

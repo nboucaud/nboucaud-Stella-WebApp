@@ -6,28 +6,19 @@ import {FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
 
 type Props = {
-    showPreview?: boolean;
     previewMessageLink?: string;
     hasText?: boolean;
     hasExceededCharacterLimit?: boolean;
-    isMarkdownPreviewEnabled: boolean;
     currentLocale: string;
-    updatePreview?: (showPreview: boolean) => void;
 };
 
 function TextboxLinks({
-    showPreview,
     previewMessageLink,
     hasText = false,
     hasExceededCharacterLimit = false,
-    isMarkdownPreviewEnabled,
     currentLocale,
-    updatePreview,
+
 }: Props) {
-    const togglePreview = (e: MouseEvent) => {
-        e.preventDefault();
-        updatePreview?.(!showPreview);
-    };
 
     let editHeader;
 
@@ -49,26 +40,6 @@ function TextboxLinks({
                 id='textbox.edit'
                 defaultMessage='Edit message'
             />
-        );
-    }
-
-    let previewLink = null;
-    if (isMarkdownPreviewEnabled) {
-        previewLink = (
-            <button
-                id='previewLink'
-                onClick={togglePreview}
-                className='style--none textbox-preview-link color--link'
-            >
-                {showPreview ? (
-                    editHeader
-                ) : (
-                    <FormattedMessage
-                        id='textbox.preview'
-                        defaultMessage='Preview'
-                    />
-                )}
-            </button>
         );
     }
 
@@ -123,7 +94,6 @@ function TextboxLinks({
     return (
         <div className={'help__text ' + helpTextClass}>
             {helpText}
-            {previewLink}
             <Link
                 target='_blank'
                 rel='noopener noreferrer'
