@@ -47,8 +47,11 @@ func TestGenerateSupportPacketYaml(t *testing.T) {
 	license := model.NewTestLicense()
 	license.Features.Users = model.NewInt(licenseUsers)
 	th.App.Srv().SetLicense(license)
+	license.Id = "test-license-id"
+	license.Customer.Id = "test-customer-id"
 
 	t.Run("Happy path", func(t *testing.T) {
+		currentTime := model.GetMillis()
 		// Happy path where we have a support packet yaml file without any warnings
 
 		fileData, err := th.App.generateSupportPacketYaml(th.Context)
@@ -59,8 +62,13 @@ func TestGenerateSupportPacketYaml(t *testing.T) {
 		var packet model.SupportPacket
 		require.NoError(t, yaml.Unmarshal(fileData.Body, &packet))
 
+		assert.True(t, packet.GeneratedAt >= currentTime)
 		assert.Equal(t, 3, packet.ActiveUsers) // from InitBasic.
 		assert.Equal(t, licenseUsers, packet.LicenseSupportedUsers)
+		assert.Equal(t, license.Id, packet.LicenseID)
+		assert.Equal(t, license.Customer.Id, packet.CustomerID)
+		assert.Equal(t, th.App.TelemetryId(), packet.ServerID)
+
 		assert.Empty(t, packet.ClusterID)
 		assert.Equal(t, "local", packet.FileDriver)
 		assert.Equal(t, "OK", packet.FileStatus)

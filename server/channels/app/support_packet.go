@@ -71,6 +71,8 @@ func (a *App) GenerateSupportPacket(c request.CTX) []model.FileData {
 func (a *App) generateSupportPacketYaml(c request.CTX) (*model.FileData, error) {
 	var rErr error
 
+	generatedAt := model.GetMillis()
+
 	/* DB */
 
 	databaseType, databaseSchemaVersion := a.Srv().DatabaseTypeAndSchemaVersion()
@@ -111,14 +113,19 @@ func (a *App) generateSupportPacketYaml(c request.CTX) (*model.FileData, error) 
 	/* License */
 
 	licenseTo := ""
+	customerID := ""
+	licenseID := ""
 	supportedUsers := 0
 	var isTrial bool
 	if license := a.Srv().License(); license != nil {
 		supportedUsers = *license.Features.Users
 		licenseTo = license.Customer.Company
 		isTrial = license.IsTrial
+		licenseID = license.Id
+		customerID = license.Customer.Id
 	}
 
+	serverID := a.TelemetryId()
 	/* Jobs  */
 
 	uniqueUserCount, err := a.Srv().Store().User().Count(model.UserCountOptions{})
@@ -157,6 +164,9 @@ func (a *App) generateSupportPacketYaml(c request.CTX) (*model.FileData, error) 
 
 	// Creating the struct for support packet yaml file
 	supportPacket := model.SupportPacket{
+
+		GeneratedAt: generatedAt,
+
 		/* Build information */
 		ServerOS:           runtime.GOOS,
 		ServerArchitecture: runtime.GOARCH,
@@ -187,6 +197,9 @@ func (a *App) generateSupportPacketYaml(c request.CTX) (*model.FileData, error) 
 		LicenseTo:             licenseTo,
 		LicenseSupportedUsers: supportedUsers,
 		LicenseIsTrial:        strconv.FormatBool(isTrial),
+		CustomerID:            customerID,
+		LicenseID:             licenseID,
+		ServerID:              serverID,
 
 		/* Server stats */
 		ActiveUsers: int(uniqueUserCount),

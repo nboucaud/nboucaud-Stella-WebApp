@@ -79,6 +79,8 @@ type ServerBusyState struct {
 }
 
 type SupportPacket struct {
+	GeneratedAt int64 `json:"generated_at"`
+
 	/* Build information */
 
 	ServerOS           string `yaml:"server_os"`
@@ -119,6 +121,9 @@ type SupportPacket struct {
 	LicenseTo             string `yaml:"license_to"`
 	LicenseSupportedUsers int    `yaml:"license_supported_users,omitempty"`
 	LicenseIsTrial        string `yaml:"license_is_trial,omitempty"`
+	CustomerID            string `yaml:"customer_id"`
+	LicenseID             string `yaml:"license_id"`
+	ServerID              string `yaml:"server_id"`
 
 	/* Server stats */
 
