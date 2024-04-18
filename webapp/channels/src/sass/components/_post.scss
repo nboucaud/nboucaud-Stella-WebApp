@@ -2278,8 +2278,8 @@
 
     div[role="list"] > div:last-child {
         position: sticky !important;
-        bottom: 0;
         z-index: 7;
+        bottom: 0;
     }
 }
 
