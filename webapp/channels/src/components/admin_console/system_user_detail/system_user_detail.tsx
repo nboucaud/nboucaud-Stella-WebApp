@@ -44,7 +44,7 @@ export type Params = {
     user_id?: UserProfile['id'];
 };
 
-export type Props = PropsFromRedux & RouteComponentProps<Params> & WrappedComponentProps;
+export type Props = PropsFromRedux & RouteComponentProps<Params> & WrappedComponentProps & {isDisabled: boolean};
 
 export type State = {
     user?: UserProfile;
@@ -355,7 +355,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                             type='text'
                                             value={this.state.emailField}
                                             onChange={this.handleEmailChange}
-                                            disabled={this.state.error !== null || this.state.isSaving}
+                                            disabled={this.props.isDisabled || this.state.error !== null || this.state.isSaving}
                                         />
                                     </label>
                                     <label>
@@ -381,6 +381,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                     <button
                                         className='btn btn-secondary'
                                         onClick={this.toggleOpenModalResetPassword}
+                                        disabled={this.props.isDisabled}
                                     >
                                         <FormattedMessage
                                             id='admin.user_item.resetPwd'
@@ -391,6 +392,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                         <button
                                             className='btn btn-secondary'
                                             onClick={this.handleRemoveMFA}
+                                            disabled={this.props.isDisabled}
                                         >
                                             <FormattedMessage
                                                 id='admin.user_item.resetMfa'
@@ -402,6 +404,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                         <button
                                             className='btn btn-secondary'
                                             onClick={this.handleActivateUser}
+                                            disabled={this.props.isDisabled}
                                         >
                                             <FormattedMessage
                                                 id='admin.user_item.makeActive'
@@ -413,6 +416,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                         <button
                                             className='btn btn-secondary btn-danger'
                                             onClick={this.toggleOpenModalDeactivateMember}
+                                            disabled={this.props.isDisabled}
                                         >
                                             <FormattedMessage
                                                 id='admin.user_item.deactivate'
@@ -481,7 +485,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                         type='button'
                                         className='btn btn-primary'
                                         onClick={this.toggleOpenTeamSelectorModal}
-                                        disabled={this.state.isLoading || this.state.error !== null}
+                                        disabled={this.props.isDisabled || this.state.isLoading || this.state.error !== null}
                                     >
                                         <FormattedMessage
                                             id='admin.userManagement.userDetail.addTeam'
@@ -500,6 +504,7 @@ export class SystemUserDetail extends PureComponent<Props, State> {
                                 <TeamList
                                     userId={this.state.user.id}
                                     userDetailCallback={this.handleTeamsLoaded}
+                                    readOnly={this.props.isDisabled}
                                     refreshTeams={this.state.refreshTeams}
                                 />
                             )}

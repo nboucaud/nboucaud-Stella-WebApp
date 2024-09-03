@@ -30,6 +30,7 @@ import './system_users_export.scss';
 interface Props {
     currentUserId: UserProfile['id'];
     dateRange: ReportDuration;
+    isDisabled?: boolean;
 }
 
 export function SystemUsersExport(props: Props) {
@@ -87,6 +88,7 @@ export function SystemUsersExport(props: Props) {
 
     const button = (
         <button
+            disabled={props.isDisabled}
             onClick={handleExport}
             className='btn btn-md btn-tertiary'
         >
