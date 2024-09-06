@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useState} from 'react';
-import {FormattedMessage} from 'react-intl';
+import {FormattedMessage, useIntl} from 'react-intl';
 import {useDispatch} from 'react-redux';
 
 import type {Channel, ChannelMembership} from '@mattermost/types/channels';
@@ -18,7 +18,6 @@ import MenuWrapper from 'components/widgets/menu/menu_wrapper';
 import WithTooltip from 'components/with_tooltip';
 
 import {Constants, ModalIdentifiers} from 'utils/constants';
-import * as Utils from 'utils/utils';
 
 import type {ModalData} from 'types/actions';
 
@@ -59,6 +58,8 @@ export default function ChannelMembersDropdown({
     guestLabel,
     actions,
 }: Props) {
+    const intl = useIntl();
+
     const [removing, setRemoving] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
     const dispatch = useDispatch();
@@ -181,7 +182,7 @@ export default function ChannelMembersDropdown({
     const canMakeUserChannelMember = canChangeMemberRoles && isChannelAdmin;
     const canMakeUserChannelAdmin = canChangeMemberRoles && isMember;
     const canRemoveUserFromChannel = canRemoveMember && (!channel.group_constrained || user.is_bot) && (!isDefaultChannel || isGuest);
-    const removeFromChannelText = user.id === currentUserId ? Utils.localizeMessage({id: 'channel_header.leave', defaultMessage: 'Leave Channel'}) : Utils.localizeMessage({id: 'channel_members_dropdown.remove_from_channel', defaultMessage: 'Remove from Channel'});
+    const removeFromChannelText = user.id === currentUserId ? intl.formatMessage({id: 'channel_header.leave', defaultMessage: 'Leave Channel'}) : intl.formatMessage({id: 'channel_members_dropdown.remove_from_channel', defaultMessage: 'Remove from Channel'});
     const removeFromChannelTestId = user.id === currentUserId ? 'leaveChannel' : 'removeFromChannel';
 
     if (canMakeUserChannelMember || canMakeUserChannelAdmin || canRemoveUserFromChannel) {
@@ -199,7 +200,7 @@ export default function ChannelMembersDropdown({
                 id={`${user.username}-make-channel-admin`}
                 show={canMakeUserChannelAdmin}
                 onClick={handleMakeChannelAdmin}
-                text={Utils.localizeMessage({id: 'channel_members_dropdown.make_channel_admin', defaultMessage: 'Make Channel Admin'})}
+                text={intl.formatMessage({id: 'channel_members_dropdown.make_channel_admin', defaultMessage: 'Make Channel Admin'})}
             />
         );
         const makeMemberMenu = (
@@ -207,7 +208,7 @@ export default function ChannelMembersDropdown({
                 id={`${user.username}-make-channel-member`}
                 show={canMakeUserChannelMember}
                 onClick={handleMakeChannelMember}
-                text={Utils.localizeMessage({id: 'channel_members_dropdown.make_channel_member', defaultMessage: 'Make Channel Member'})}
+                text={intl.formatMessage({id: 'channel_members_dropdown.make_channel_member', defaultMessage: 'Make Channel Member'})}
             />
         );
         return (
@@ -223,7 +224,7 @@ export default function ChannelMembersDropdown({
                 <Menu
                     openLeft={true}
                     openUp={totalUsers > ROWS_FROM_BOTTOM_TO_OPEN_UP && totalUsers - index <= ROWS_FROM_BOTTOM_TO_OPEN_UP}
-                    ariaLabel={Utils.localizeMessage({id: 'channel_members_dropdown.menuAriaLabel', defaultMessage: 'Change the role of channel member'})}
+                    ariaLabel={intl.formatMessage({id: 'channel_members_dropdown.menuAriaLabel', defaultMessage: 'Change the role of channel member'})}
                 >
                     {canMakeUserChannelMember ? makeMemberMenu : null}
                     {canMakeUserChannelAdmin ? makeAdminMenu : null}
