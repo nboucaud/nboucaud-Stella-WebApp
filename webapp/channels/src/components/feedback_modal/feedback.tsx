@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useState} from 'react';
-import {injectIntl} from 'react-intl';
+import {useIntl} from 'react-intl';
 import type {WrappedComponentProps} from 'react-intl';
 import {useDispatch} from 'react-redux';
 
@@ -30,7 +30,9 @@ type Props = {
     freeformTextPlaceholder: string;
 } & WrappedComponentProps
 
-function FeedbackModal(props: Props) {
+export default function FeedbackModal(props: Props) {
+    const intl = useIntl();
+
     const maxFreeFormTextLength = 500;
     const optionOther = {translatedMessage: props.intl.formatMessage({id: 'feedback.other', defaultMessage: 'Other'}), submissionValue: 'Other'};
     const feedbackModalOptions: FeedbackOption[] = [
@@ -69,7 +71,7 @@ function FeedbackModal(props: Props) {
             handleCancel={handleCancel}
             handleConfirm={handleSubmitFeedbackModal}
             confirmButtonText={props.submitText}
-            cancelButtonText={props.intl.formatMessage({id: 'feedback.cancelButton.text', defaultMessage: 'Cancel'})}
+            cancelButtonText={intl.formatMessage({id: 'feedback.cancelButton.text', defaultMessage: 'Cancel'})}
             modalHeaderText={props.title}
             autoCloseOnConfirmButton={false}
         >
@@ -107,5 +109,3 @@ function FeedbackModal(props: Props) {
         </GenericModal>
     );
 }
-
-export default injectIntl(FeedbackModal);

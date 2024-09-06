@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import {defineMessage, FormattedMessage, injectIntl} from 'react-intl';
+import {defineMessage, FormattedMessage} from 'react-intl';
 import type {WrappedComponentProps} from 'react-intl';
 import type {RouteComponentProps} from 'react-router-dom';
 
@@ -18,6 +18,8 @@ import BlockableLink from 'components/admin_console/blockable_link';
 import ExternalLink from 'components/external_link';
 import FormError from 'components/form_error';
 import LoadingScreen from 'components/loading_screen';
+import LocalizedPlaceholderInput from 'components/localized_placeholder_input';
+import LocalizedPlaceholderTextarea from 'components/localized_placeholder_textarea';
 import SaveButton from 'components/save_button';
 import TeamSelectorModal from 'components/team_selector_modal';
 import AdminHeader from 'components/widgets/admin_console/admin_header';
@@ -79,7 +81,7 @@ type State = {
     schemeDescription: string | undefined;
 };
 
-class PermissionTeamSchemeSettings extends React.PureComponent<Props & RouteComponentProps, State> {
+export default class PermissionTeamSchemeSettings extends React.PureComponent<Props & RouteComponentProps, State> {
     constructor(props: Props & RouteComponentProps) {
         super(props);
         this.state = {
@@ -645,11 +647,11 @@ class PermissionTeamSchemeSettings extends React.PureComponent<Props & RouteComp
                                             defaultMessage='Scheme Name:'
                                         />
                                     </label>
-                                    <input
+                                    <LocalizedPlaceholderInput
                                         className='form-control'
                                         disabled={this.props.isDisabled}
                                         id='scheme-name'
-                                        placeholder={this.props.intl.formatMessage({id: 'admin.permissions.teamScheme.schemeNamePlaceholder', defaultMessage: 'Scheme Name'})}
+                                        placeholder={defineMessage({id: 'admin.permissions.teamScheme.schemeNamePlaceholder', defaultMessage: 'Scheme Name'})}
                                         type='text'
                                         value={schemeName}
                                         onChange={this.handleNameChange}
@@ -665,12 +667,12 @@ class PermissionTeamSchemeSettings extends React.PureComponent<Props & RouteComp
                                             defaultMessage='Scheme Description:'
                                         />
                                     </label>
-                                    <textarea
+                                    <LocalizedPlaceholderTextarea
                                         id='scheme-description'
                                         className='form-control'
                                         rows={5}
                                         value={schemeDescription}
-                                        placeholder={this.props.intl.formatMessage({id: 'admin.permissions.teamScheme.schemeDescriptionPlaceholder', defaultMessage: 'Scheme Description'})}
+                                        placeholder={defineMessage({id: 'admin.permissions.teamScheme.schemeDescriptionPlaceholder', defaultMessage: 'Scheme Description'})}
                                         onChange={this.handleDescriptionChange}
                                         disabled={this.props.isDisabled}
                                     />
@@ -802,7 +804,12 @@ class PermissionTeamSchemeSettings extends React.PureComponent<Props & RouteComp
                         saving={this.state.saving}
                         disabled={this.props.isDisabled || !this.state.saveNeeded}
                         onClick={this.handleSubmit}
-                        savingMessage={this.props.intl.formatMessage({id: 'admin.saving', defaultMessage: 'Saving Config...'})}
+                        savingMessage={
+                            <FormattedMessage
+                                id='admin.saving'
+                                defaultMessage='Saving Config...'
+                            />
+                        }
                     />
                     <BlockableLink
                         className='cancel-button'
@@ -821,5 +828,3 @@ class PermissionTeamSchemeSettings extends React.PureComponent<Props & RouteComp
         );
     };
 }
-
-export default injectIntl(PermissionTeamSchemeSettings);
