@@ -21,7 +21,6 @@ import SuggestionList from 'components/suggestion/suggestion_list';
 import LoadingSpinner from 'components/widgets/loading/loading_spinner';
 
 import {filterEmptyOptions} from 'utils/apps';
-import {localizeMessage} from 'utils/utils';
 
 import type {DoAppCallResult} from 'types/apps';
 
@@ -518,10 +517,10 @@ export class AppsForm extends React.PureComponent<Props, State> {
                 autoFocus={!fields || fields.length === 0}
                 className='btn btn-primary save-button'
                 spinning={Boolean(this.state.submitting)}
-                spinningText={localizeMessage({
+                spinningText={{
                     id: 'interactive_dialog.submitting',
                     defaultMessage: 'Submitting...',
-                })}
+                }}
             >
                 {submitText}
             </SpinnerButton>

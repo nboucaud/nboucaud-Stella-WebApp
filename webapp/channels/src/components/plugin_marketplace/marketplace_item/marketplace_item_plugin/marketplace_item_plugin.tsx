@@ -3,7 +3,7 @@
 
 import classNames from 'classnames';
 import React from 'react';
-import {FormattedMessage} from 'react-intl';
+import {defineMessages, FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
 import semver from 'semver';
 
@@ -14,8 +14,6 @@ import ConfirmModal from 'components/confirm_modal';
 import ExternalLink from 'components/external_link';
 import FormattedMarkdownMessage from 'components/formatted_markdown_message';
 import LoadingWrapper from 'components/widgets/loading/loading_wrapper';
-
-import {localizeMessage} from 'utils/utils';
 
 import MarketplaceItem from '../marketplace_item';
 
@@ -328,7 +326,7 @@ export default class MarketplaceItemPlugin extends React.PureComponent <Marketpl
             >
                 <LoadingWrapper
                     loading={this.props.installing}
-                    text={localizeMessage({id: 'marketplace_modal.installing', defaultMessage: 'Installing...'})}
+                    text={messages.installing}
                 >
                     {actionButton}
                 </LoadingWrapper>
@@ -378,3 +376,7 @@ export default class MarketplaceItemPlugin extends React.PureComponent <Marketpl
         );
     }
 }
+
+const messages = defineMessages({
+    installing: {id: 'marketplace_modal.installing', defaultMessage: 'Installing...'},
+});

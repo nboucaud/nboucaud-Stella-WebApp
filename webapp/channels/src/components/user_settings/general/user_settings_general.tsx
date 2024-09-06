@@ -171,7 +171,7 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
             <span className='resend-verification-wrapper'>
                 <LoadingWrapper
                     loading={this.state.showSpinner}
-                    text={Utils.localizeMessage({id: 'user.settings.general.sending', defaultMessage: 'Sending'})}
+                    text={messages.sending}
                 >
                     <a
                         onClick={() => {
@@ -1402,5 +1402,9 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
         );
     }
 }
+
+const messages = defineMessages({
+    sending: {id: 'user.settings.general.sending', defaultMessage: 'Sending'},
+});
 
 export default injectIntl(UserSettingsGeneralTab);

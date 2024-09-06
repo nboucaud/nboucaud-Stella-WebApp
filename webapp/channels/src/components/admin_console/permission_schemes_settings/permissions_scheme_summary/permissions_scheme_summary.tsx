@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import {FormattedMessage} from 'react-intl';
+import {defineMessages, FormattedMessage} from 'react-intl';
 import {Link} from 'react-router-dom';
 import type {RouteComponentProps} from 'react-router-dom';
 
@@ -14,8 +14,6 @@ import type {ActionResult} from 'mattermost-redux/types/actions';
 import ConfirmModal from 'components/confirm_modal';
 import LoadingWrapper from 'components/widgets/loading/loading_wrapper';
 import WithTooltip from 'components/with_tooltip';
-
-import * as Utils from 'utils/utils';
 
 const MAX_TEAMS_PER_SCHEME_SUMMARY = 8;
 
@@ -78,7 +76,7 @@ export default class PermissionsSchemeSummary extends React.PureComponent<Props 
         const confirmButton = (
             <LoadingWrapper
                 loading={this.state.deleting}
-                text={Utils.localizeMessage({id: 'admin.permissions.permissionsSchemeSummary.deleting', defaultMessage: 'Deleting...'})}
+                text={messages.deleting}
             >
                 <FormattedMessage
                     id='admin.permissions.permissionsSchemeSummary.deleteConfirmButton'
@@ -215,3 +213,7 @@ export default class PermissionsSchemeSummary extends React.PureComponent<Props 
         );
     };
 }
+
+const messages = defineMessages({
+    deleting: {id: 'admin.permissions.permissionsSchemeSummary.deleting', defaultMessage: 'Deleting...'},
+});

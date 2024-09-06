@@ -9,7 +9,6 @@ import FormattedMarkdownMessage from 'components/formatted_markdown_message';
 import LoadingWrapper from 'components/widgets/loading/loading_wrapper';
 
 import {format} from 'utils/markdown';
-import {localizeMessage} from 'utils/utils';
 
 interface TeamEditionRightPanelProps {
     upgradingPercentage: number;
@@ -127,10 +126,12 @@ const TeamEditionRightPanel: React.FC<TeamEditionRightPanelProps> = ({
                     >
                         <LoadingWrapper
                             loading={restarting}
-                            text={localizeMessage({
-                                id: 'admin.license.enterprise.restarting',
-                                defaultMessage: 'Restarting',
-                            })}
+                            text={
+                                <FormattedMessage
+                                    id='admin.license.enterprise.restarting'
+                                    defaultMessage='Restarting'
+                                />
+                            }
                         >
                             <FormattedMessage
                                 id='admin.license.enterprise.restart'
