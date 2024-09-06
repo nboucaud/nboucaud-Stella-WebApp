@@ -5,7 +5,7 @@ import React from 'react';
 import type {RefObject} from 'react';
 import {Modal} from 'react-bootstrap';
 import type {IntlShape} from 'react-intl';
-import {injectIntl, FormattedMessage} from 'react-intl';
+import {injectIntl, FormattedMessage, defineMessages} from 'react-intl';
 
 import type {Group, SyncablePatch} from '@mattermost/types/groups';
 import {SyncableType} from '@mattermost/types/groups';
@@ -18,7 +18,6 @@ import type {Value} from 'components/multiselect/multiselect';
 
 import groupsAvatar from 'images/groups-avatar.png';
 import Constants from 'utils/constants';
-import {localizeMessage} from 'utils/utils';
 
 const GROUPS_PER_PAGE = 50;
 const MAX_SELECTABLE_VALUES = 10;
@@ -248,9 +247,6 @@ export class AddGroupsToTeamModal extends React.PureComponent<Props, State> {
             </div>
         );
 
-        const buttonSubmitText = localizeMessage({id: 'multiselect.add', defaultMessage: 'Add'});
-        const buttonSubmitLoadingText = localizeMessage({id: 'multiselect.adding', defaultMessage: 'Adding...'});
-
         let addError = null;
         if (this.state.addError) {
             addError = (
@@ -315,15 +311,22 @@ export class AddGroupsToTeamModal extends React.PureComponent<Props, State> {
                         handleSubmit={this.handleSubmit}
                         maxValues={MAX_SELECTABLE_VALUES}
                         numRemainingText={numRemainingText}
-                        buttonSubmitText={buttonSubmitText}
-                        buttonSubmitLoadingText={buttonSubmitLoadingText}
+                        buttonSubmitText={messages.add}
+                        buttonSubmitLoadingText={messages.adding}
                         saving={this.state.saving}
                         loading={this.state.loadingGroups}
-                        placeholderText={localizeMessage({id: 'multiselect.addGroupsPlaceholder', defaultMessage: 'Search and add groups'})}
+                        placeholderText={messages.placeholder}
                     />
                 </Modal.Body>
             </Modal>
         );
     }
 }
+
+const messages = defineMessages({
+    add: {id: 'multiselect.add', defaultMessage: 'Add'},
+    adding: {id: 'multiselect.adding', defaultMessage: 'Adding...'},
+    placeholder: {id: 'multiselect.addGroupsPlaceholder', defaultMessage: 'Search and add groups'},
+});
+
 export default injectIntl(AddGroupsToTeamModal);

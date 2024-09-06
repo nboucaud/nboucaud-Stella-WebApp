@@ -4,7 +4,7 @@
 import React from 'react';
 import {Modal} from 'react-bootstrap';
 import type {IntlShape} from 'react-intl';
-import {injectIntl, FormattedMessage} from 'react-intl';
+import {injectIntl, FormattedMessage, defineMessages} from 'react-intl';
 
 import type {Team} from '@mattermost/types/teams';
 import type {UserProfile} from '@mattermost/types/users';
@@ -19,7 +19,7 @@ import ProfilePicture from 'components/profile_picture';
 import BotTag from 'components/widgets/tag/bot_tag';
 import GuestTag from 'components/widgets/tag/guest_tag';
 
-import {displayEntireNameForUser, localizeMessage} from 'utils/utils';
+import {displayEntireNameForUser} from 'utils/utils';
 
 const USERS_PER_PAGE = 50;
 const MAX_SELECTABLE_VALUES = 20;
@@ -192,9 +192,6 @@ export class AddUsersToTeamModal extends React.PureComponent<Props, State> {
             </div>
         );
 
-        const buttonSubmitText = localizeMessage({id: 'multiselect.add', defaultMessage: 'Add'});
-        const buttonSubmitLoadingText = localizeMessage({id: 'multiselect.adding', defaultMessage: 'Adding...'});
-
         let addError = null;
         if (this.state.addError) {
             addError = (<div className='has-error col-sm-12'><label className='control-label font-weight--normal'>{this.state.addError}</label></div>);
@@ -255,16 +252,22 @@ export class AddUsersToTeamModal extends React.PureComponent<Props, State> {
                         handleSubmit={this.handleSubmit}
                         maxValues={MAX_SELECTABLE_VALUES}
                         numRemainingText={numRemainingText}
-                        buttonSubmitText={buttonSubmitText}
-                        buttonSubmitLoadingText={buttonSubmitLoadingText}
+                        buttonSubmitText={messages.add}
+                        buttonSubmitLoadingText={messages.adding}
                         saving={this.state.saving}
                         loading={this.state.loading}
-                        placeholderText={localizeMessage({id: 'multiselect.placeholder', defaultMessage: 'Search and add members'})}
+                        placeholderText={messages.placeholder}
                     />
                 </Modal.Body>
             </Modal>
         );
     };
 }
+
+const messages = defineMessages({
+    add: {id: 'multiselect.add', defaultMessage: 'Add'},
+    adding: {id: 'multiselect.adding', defaultMessage: 'Adding...'},
+    placeholder: {id: 'multiselect.placeholder', defaultMessage: 'Search and add members'},
+});
 
 export default injectIntl(AddUsersToTeamModal);

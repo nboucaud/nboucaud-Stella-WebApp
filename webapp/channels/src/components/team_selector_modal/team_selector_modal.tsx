@@ -4,7 +4,7 @@
 import React from 'react';
 import {Modal} from 'react-bootstrap';
 import type {IntlShape} from 'react-intl';
-import {injectIntl, FormattedMessage} from 'react-intl';
+import {injectIntl, FormattedMessage, defineMessages} from 'react-intl';
 
 import type {Team} from '@mattermost/types/teams';
 
@@ -17,7 +17,7 @@ import type {Value} from 'components/multiselect/multiselect';
 import TeamIcon from 'components/widgets/team_icon/team_icon';
 
 import Constants, {ModalIdentifiers} from 'utils/constants';
-import {localizeMessage, imageURLForTeam} from 'utils/utils';
+import {imageURLForTeam} from 'utils/utils';
 
 const TEAMS_PER_PAGE = 50;
 
@@ -243,8 +243,6 @@ export class TeamSelectorModal extends React.PureComponent<Props, State> {
             />
         );
 
-        const buttonSubmitText = localizeMessage({id: 'multiselect.add', defaultMessage: 'Add'});
-
         let teams = [] as Team[];
         if (this.props.teams) {
             teams = this.props.teams.filter((team) => team.delete_at === 0);
@@ -310,15 +308,20 @@ export class TeamSelectorModal extends React.PureComponent<Props, State> {
                         handleAdd={this.addValue}
                         handleSubmit={this.handleSubmit}
                         numRemainingText={numRemainingText}
-                        buttonSubmitText={buttonSubmitText}
+                        buttonSubmitText={messages.add}
                         saving={false}
                         loading={this.state.loadingTeams}
-                        placeholderText={localizeMessage({id: 'multiselect.addTeamsPlaceholder', defaultMessage: 'Search and add teams'})}
+                        placeholderText={messages.placeholder}
                     />
                 </Modal.Body>
             </Modal>
         );
     }
 }
+
+const messages = defineMessages({
+    add: {id: 'multiselect.add', defaultMessage: 'Add'},
+    placeholder: {id: 'multiselect.addTeamsPlaceholder', defaultMessage: 'Search and add teams'},
+});
 
 export default injectIntl(TeamSelectorModal);

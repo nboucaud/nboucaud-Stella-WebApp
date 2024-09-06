@@ -15,7 +15,6 @@ import Input from 'components/widgets/inputs/input/input';
 
 import Constants, {ItemStatus} from 'utils/constants';
 import * as Utils from 'utils/utils';
-import {localizeMessage} from 'utils/utils';
 
 import type {ModalData} from 'types/actions';
 
@@ -251,7 +250,7 @@ export class CreateUserGroupsModal extends React.PureComponent<Props, State> {
                                 savingEnabled={this.isSaveEnabled()}
                                 addUserCallback={this.addUserCallback}
                                 deleteUserCallback={this.deleteUserCallback}
-                                backButtonText={localizeMessage({id: 'multiselect.cancelButton', defaultMessage: 'Cancel'})}
+                                backButtonText={messages.cancel}
                                 backButtonClick={
                                     typeof this.props.backButtonCallback === 'function' ? this.goBack : this.doHide
                                 }
@@ -277,6 +276,10 @@ export class CreateUserGroupsModal extends React.PureComponent<Props, State> {
 }
 
 const messages = defineMessages({
+    cancel: {
+        id: 'multiselect.cancelButton',
+        defaultMessage: 'Cancel',
+    },
     mention: {
         id: 'user_groups_modal.mention',
         defaultMessage: 'Mention',

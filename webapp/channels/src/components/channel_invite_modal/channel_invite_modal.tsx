@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import React from 'react';
 import {Modal} from 'react-bootstrap';
 import type {IntlShape} from 'react-intl';
-import {injectIntl, FormattedMessage} from 'react-intl';
+import {injectIntl, FormattedMessage, defineMessages} from 'react-intl';
 import styled from 'styled-components';
 
 import type {Channel} from '@mattermost/types/channels';
@@ -28,7 +28,7 @@ import BotTag from 'components/widgets/tag/bot_tag';
 import GuestTag from 'components/widgets/tag/guest_tag';
 
 import Constants, {ModalIdentifiers} from 'utils/constants';
-import {localizeMessage, sortUsersAndGroups} from 'utils/utils';
+import {sortUsersAndGroups} from 'utils/utils';
 
 import GroupOption from './group_option';
 import TeamWarningBanner from './team_warning_banner';
@@ -454,9 +454,6 @@ export class ChannelInviteModal extends React.PureComponent<Props, State> {
             inviteError = (<label className='has-error control-label'>{this.state.inviteError}</label>);
         }
 
-        const buttonSubmitText = localizeMessage({id: 'multiselect.add', defaultMessage: 'Add'});
-        const buttonSubmitLoadingText = localizeMessage({id: 'multiselect.adding', defaultMessage: 'Adding...'});
-
         const closeMembersInviteModal = () => {
             this.props.actions.closeModal(ModalIdentifiers.CHANNEL_INVITE);
         };
@@ -513,13 +510,13 @@ export class ChannelInviteModal extends React.PureComponent<Props, State> {
                 handleAdd={this.addValue}
                 handleSubmit={this.handleSubmit}
                 handleCancel={closeMembersInviteModal}
-                buttonSubmitText={buttonSubmitText}
-                buttonSubmitLoadingText={buttonSubmitLoadingText}
+                buttonSubmitText={messages.add}
+                buttonSubmitLoadingText={messages.adding}
                 saving={this.state.saving}
                 loading={this.state.loadingUsers}
-                placeholderText={this.props.isGroupsEnabled ? localizeMessage({id: 'multiselect.placeholder.peopleOrGroups', defaultMessage: 'Search for people or groups'}) : localizeMessage({id: 'multiselect.placeholder', defaultMessage: 'Search for people'})}
+                placeholderText={this.props.isGroupsEnabled ? messages.searchPeopleAndGroups : messages.searchPeople}
                 valueWithImage={true}
-                backButtonText={localizeMessage({id: 'multiselect.cancel', defaultMessage: 'Cancel'})}
+                backButtonText={messages.cancel}
                 backButtonClick={closeMembersInviteModal}
                 backButtonClass={'btn-tertiary tertiary-button'}
                 customNoOptionsMessage={this.props.emailInvitationsEnabled ? customNoOptionsMessage : null}
@@ -581,5 +578,13 @@ export class ChannelInviteModal extends React.PureComponent<Props, State> {
         );
     };
 }
+
+const messages = defineMessages({
+    add: {id: 'multiselect.add', defaultMessage: 'Add'},
+    adding: {id: 'multiselect.adding', defaultMessage: 'Adding...'},
+    cancel: {id: 'multiselect.cancel', defaultMessage: 'Cancel'},
+    searchPeople: {id: 'multiselect.placeholder', defaultMessage: 'Search for people'},
+    searchPeopleAndGroups: {id: 'multiselect.placeholder.peopleOrGroups', defaultMessage: 'Search for people or groups'},
+});
 
 export default injectIntl(ChannelInviteModal);

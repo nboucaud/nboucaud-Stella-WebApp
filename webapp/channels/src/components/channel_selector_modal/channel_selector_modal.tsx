@@ -4,7 +4,7 @@
 import React from 'react';
 import {Modal} from 'react-bootstrap';
 import type {IntlShape} from 'react-intl';
-import {injectIntl, FormattedMessage} from 'react-intl';
+import {injectIntl, FormattedMessage, defineMessages} from 'react-intl';
 
 import type {Channel, ChannelSearchOpts, ChannelWithTeamData} from '@mattermost/types/channels';
 
@@ -15,7 +15,6 @@ import MultiSelect from 'components/multiselect/multiselect';
 import type {Value} from 'components/multiselect/multiselect';
 
 import Constants from 'utils/constants';
-import {localizeMessage} from 'utils/utils';
 
 type ChannelWithTeamDataValue = ChannelWithTeamData & Value;
 
@@ -208,8 +207,6 @@ export class ChannelSelectorModal extends React.PureComponent<Props, State> {
             />
         );
 
-        const buttonSubmitText = localizeMessage({id: 'multiselect.add', defaultMessage: 'Add'});
-
         let options = this.state.channels.map((i): ChannelWithTeamDataValue => ({...i, label: i.display_name, value: i.id}));
         if (this.props.alreadySelected) {
             options = options.filter((channel) => this.props.alreadySelected?.indexOf(channel.id) === -1);
@@ -258,16 +255,21 @@ export class ChannelSelectorModal extends React.PureComponent<Props, State> {
                         handleAdd={this.addValue}
                         handleSubmit={this.handleSubmit}
                         numRemainingText={numRemainingText}
-                        buttonSubmitText={buttonSubmitText}
+                        buttonSubmitText={messages.add}
                         saving={false}
                         loading={this.state.loadingChannels}
-                        placeholderText={localizeMessage({id: 'multiselect.addChannelsPlaceholder', defaultMessage: 'Search and add channels'})}
+                        placeholderText={messages.placeholder}
                     />
                 </Modal.Body>
             </Modal>
         );
     }
 }
+
+const messages = defineMessages({
+    add: {id: 'multiselect.add', defaultMessage: 'Add'},
+    placeholder: {id: 'multiselect.addChannelsPlaceholder', defaultMessage: 'Search and add channels'},
+});
 
 function compareChannels(a: Channel, b: Channel) {
     const aDisplayName = a.display_name.toUpperCase();
