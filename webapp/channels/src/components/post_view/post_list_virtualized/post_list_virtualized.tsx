@@ -11,7 +11,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 
 import type {ActionResult} from 'mattermost-redux/types/actions';
 import EventEmitter from 'mattermost-redux/utils/event_emitter';
-import {getNewMessagesIndex, isCreateComment, isDateLine, isStartOfNewMessages} from 'mattermost-redux/utils/post_list';
+import {CREATE_COMMENT, getNewMessagesIndex, isCreateComment, isDateLine, isStartOfNewMessages} from 'mattermost-redux/utils/post_list';
 
 import type {updateNewMessagesAtInChannel} from 'actions/global_actions';
 import type {CanLoadMorePosts} from 'actions/views/channel';
@@ -821,7 +821,8 @@ export default class PostList extends React.PureComponent<Props, State> {
                                             style={{...virtListStyles, ...dynamicListStyle}}
                                             innerListStyle={postListStyle}
                                             initRangeToRender={this.initRangeToRender}
-                                            loaderId={PostListRowListIds.OLDER_MESSAGES_LOADER}
+                                            loaderId={CREATE_COMMENT}
+                                            visibleId={CREATE_COMMENT}
                                             correctScrollToBottom={this.props.atLatestPost}
                                             onItemsRendered={this.onItemsRendered}
                                             scrollToFailed={this.scrollToFailed}
