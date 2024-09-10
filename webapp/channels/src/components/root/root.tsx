@@ -20,7 +20,7 @@ import BrowserStore from 'stores/browser_store';
 import {makeAsyncComponent} from 'components/async_load';
 import OpenPluginInstallPost from 'components/custom_open_plugin_install_post_renderer';
 import GlobalHeader from 'components/global_header/global_header';
-import {HFRoute} from 'components/header_footer_route/header_footer_route';
+import {HFRoute, LoggedInHFRoute} from 'components/header_footer_route/header_footer_route';
 import {HFTRoute, LoggedInHFTRoute} from 'components/header_footer_template_route';
 import InitialLoadingScreen from 'components/initial_loading_screen';
 import LoggedIn from 'components/logged_in';
@@ -401,11 +401,11 @@ export default class Root extends React.PureComponent<Props, State> {
                         path={'/access_problem'}
                         component={AccessProblem}
                     />
-                    <HFTRoute
+                    <HFRoute
                         path={'/reset_password'}
                         component={PasswordResetSendLink}
                     />
-                    <HFTRoute
+                    <HFRoute
                         path={'/reset_password_complete'}
                         component={PasswordResetForm}
                     />
@@ -457,7 +457,7 @@ export default class Root extends React.PureComponent<Props, State> {
                         path={'/create_team'}
                         component={CreateTeam}
                     />
-                    <LoggedInRoute
+                    <LoggedInHFRoute
                         path={'/mfa'}
                         component={Mfa}
                     />
