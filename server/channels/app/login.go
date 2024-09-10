@@ -198,13 +198,13 @@ func (a *App) DoLogin(c request.CTX, w http.ResponseWriter, r *http.Request, use
 	bname := getBrowserName(ua, r.UserAgent())
 	bversion := getBrowserVersion(ua, r.UserAgent())
 
-	session.AddProp(model.SessionPropPlatform, plat)
-	session.AddProp(model.SessionPropOs, os)
-	session.AddProp(model.SessionPropBrowser, fmt.Sprintf("%v/%v", bname, bversion))
+	session.AddProp(model.SessionPropPlatform, plat)                                 //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropOs, os)                                         //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropBrowser, fmt.Sprintf("%v/%v", bname, bversion)) //  TMP(Ben): Checked. Not a problem.
 	if user.IsGuest() {
-		session.AddProp(model.SessionPropIsGuest, "true")
+		session.AddProp(model.SessionPropIsGuest, "true") //  TMP(Ben): Checked. Not a problem.
 	} else {
-		session.AddProp(model.SessionPropIsGuest, "false")
+		session.AddProp(model.SessionPropIsGuest, "false") //  TMP(Ben): Checked. Not a problem.
 	}
 
 	var err *model.AppError

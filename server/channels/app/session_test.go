@@ -66,7 +66,7 @@ func TestGetSessionIdleTimeoutInMinutes(t *testing.T) {
 	session = &model.Session{
 		UserId: model.NewId(),
 	}
-	session.AddProp(model.SessionPropType, model.SessionTypeUserAccessToken)
+	session.AddProp(model.SessionPropType, model.SessionTypeUserAccessToken) //  TMP(Ben): Checked. Not a problem.
 
 	session, _ = th.App.CreateSession(th.Context, session)
 	time = session.LastActivityAt - (1000 * 60 * 6)

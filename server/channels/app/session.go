@@ -61,7 +61,7 @@ func (a *App) GetCloudSession(token string) (*model.Session, *model.AppError) {
 			IsOAuth: false,
 		}
 
-		session.AddProp(model.SessionPropType, model.SessionTypeCloudKey)
+		session.AddProp(model.SessionPropType, model.SessionTypeCloudKey) //  TMP(Ben): Checked. Not a problem.
 		return session, nil
 	}
 	return nil, model.NewAppError("GetCloudSession", "api.context.invalid_token.error", map[string]any{"Token": token, "Error": ""}, "The provided token is invalid", http.StatusUnauthorized)
@@ -76,7 +76,7 @@ func (a *App) GetRemoteClusterSession(token string, remoteId string) (*model.Ses
 			IsOAuth: false,
 		}
 
-		session.AddProp(model.SessionPropType, model.SessionTypeRemoteclusterToken)
+		session.AddProp(model.SessionPropType, model.SessionTypeRemoteclusterToken) //  TMP(Ben): Checked. Not a problem.
 		return session, nil
 	}
 	return nil, model.NewAppError("GetRemoteClusterSession", "api.context.invalid_token.error", map[string]any{"Token": token, "Error": ""}, "The provided token is invalid", http.StatusUnauthorized)
@@ -448,15 +448,15 @@ func (a *App) createSessionForUserAccessToken(c request.CTX, tokenString string)
 		IsOAuth: false,
 	}
 
-	session.AddProp(model.SessionPropUserAccessTokenId, token.Id)
-	session.AddProp(model.SessionPropType, model.SessionTypeUserAccessToken)
+	session.AddProp(model.SessionPropUserAccessTokenId, token.Id)            //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropType, model.SessionTypeUserAccessToken) //  TMP(Ben): Checked. Not a problem.
 	if user.IsBot {
-		session.AddProp(model.SessionPropIsBot, model.SessionPropIsBotValue)
+		session.AddProp(model.SessionPropIsBot, model.SessionPropIsBotValue) //  TMP(Ben): Checked. Not a problem.
 	}
 	if user.IsGuest() {
-		session.AddProp(model.SessionPropIsGuest, "true")
+		session.AddProp(model.SessionPropIsGuest, "true") //  TMP(Ben): Checked. Not a problem.
 	} else {
-		session.AddProp(model.SessionPropIsGuest, "false")
+		session.AddProp(model.SessionPropIsGuest, "false") //  TMP(Ben): Checked. Not a problem.
 	}
 	a.ch.srv.platform.SetSessionExpireInHours(session, model.SessionUserAccessTokenExpiryHours)
 

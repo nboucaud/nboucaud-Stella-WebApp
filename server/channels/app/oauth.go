@@ -392,11 +392,11 @@ func (a *App) newSession(c request.CTX, app *model.OAuthApp, user *model.User) (
 	session := &model.Session{UserId: user.Id, Roles: user.Roles, IsOAuth: true}
 	session.GenerateCSRF()
 	a.ch.srv.platform.SetSessionExpireInHours(session, *a.Config().ServiceSettings.SessionLengthSSOInHours)
-	session.AddProp(model.SessionPropPlatform, app.Name)
-	session.AddProp(model.SessionPropOAuthAppID, app.Id)
-	session.AddProp(model.SessionPropMattermostAppID, app.MattermostAppID)
-	session.AddProp(model.SessionPropOs, "OAuth2")
-	session.AddProp(model.SessionPropBrowser, "OAuth2")
+	session.AddProp(model.SessionPropPlatform, app.Name)                   //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropOAuthAppID, app.Id)                   //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropMattermostAppID, app.MattermostAppID) //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropOs, "OAuth2")                         //  TMP(Ben): Checked. Not a problem.
+	session.AddProp(model.SessionPropBrowser, "OAuth2")                    //  TMP(Ben): Checked. Not a problem.
 
 	session, err := a.Srv().Store().Session().Save(c, session)
 	if err != nil {

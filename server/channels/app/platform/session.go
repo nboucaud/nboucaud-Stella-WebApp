@@ -239,7 +239,7 @@ func (ps *PlatformService) UpdateSessionsIsGuest(c request.CTX, user *model.User
 	}
 
 	for _, session := range sessions {
-		session.AddProp(model.SessionPropIsGuest, strconv.FormatBool(isGuest))
+		session.AddProp(model.SessionPropIsGuest, strconv.FormatBool(isGuest)) //  TMP(Ben):  CHECK!
 		err := ps.Store.Session().UpdateProps(session)
 		if err != nil {
 			mlog.Warn("Unable to update isGuest session", mlog.Err(err))

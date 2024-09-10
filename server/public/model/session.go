@@ -131,7 +131,7 @@ func (s *Session) PreSave() {
 	s.LastActivityAt = s.CreateAt
 
 	if s.Props == nil {
-		s.Props = make(map[string]string)
+		s.Props = make(map[string]string) // TMP(Ben): write
 	}
 }
 
@@ -151,7 +151,7 @@ func (s *Session) IsExpired() bool {
 	return false
 }
 
-func (s *Session) AddProp(key string, value string) {
+func (s *Session) AddProp(key string, value string) { //  TMP(Ben): Checked. Not a problem.
 	if s.Props == nil {
 		s.Props = make(map[string]string)
 	}
@@ -248,7 +248,7 @@ func (s *Session) GetUserRoles() []string {
 	return strings.Fields(s.Roles)
 }
 
-func (s *Session) GenerateCSRF() string {
+func (s *Session) GenerateCSRF() string { //  TMP(Ben): Checked. Not a problem.
 	token := NewId()
 	s.AddProp("csrf", token)
 	return token
