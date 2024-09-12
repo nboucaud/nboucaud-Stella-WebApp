@@ -131,7 +131,7 @@ func (s *Session) PreSave() {
 	s.LastActivityAt = s.CreateAt
 
 	if s.Props == nil {
-		s.Props = make(map[string]string) // TMP(Ben): write
+		s.Props = make(map[string]string) //  TMP(Ben): Checked. Not a problem.
 	}
 }
 
