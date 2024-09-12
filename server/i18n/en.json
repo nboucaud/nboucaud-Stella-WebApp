@@ -5095,6 +5095,14 @@
     "translation": "Unable to set the searchable content of the file."
   },
   {
+    "id": "app.get_user_team_scheduled_posts.error",
+    "translation": "Error occurred fetching scheduled posts."
+  },
+  {
+    "id": "app.get_user_team_scheduled_posts.team_permission_error",
+    "translation": "you don't have permission for the team"
+  },
+  {
     "id": "app.group.crud_permission",
     "translation": "Unable to perform operation for that source type."
   },
