@@ -108,7 +108,7 @@ const AdvancedTextEditor = ({
     const isRHS = Boolean(postId && !isThreadView);
 
     const currentUserId = useSelector(getCurrentUserId);
-    const channelDisplayName = useSelector((state: GlobalState) => getChannelSelector(state, {id: channelId})?.display_name || '');
+    const channelDisplayName = useSelector((state: GlobalState) => getChannelSelector(state, channelId)?.display_name || '');
     const draftFromStore = useSelector((state: GlobalState) => getDraftSelector(state, channelId, postId));
     const badConnection = useSelector((state: GlobalState) => connectionErrorCount(state) > 1);
     const maxPostSize = useSelector((state: GlobalState) => parseInt(getConfig(state).MaxPostSize || '', 10) || Constants.DEFAULT_CHARACTER_LIMIT);
@@ -271,6 +271,8 @@ const AdvancedTextEditor = ({
         toggleAdvanceTextEditor,
         toggleEmojiPicker,
     );
+
+    const noArgumentHandleSubmit = useCallback(() => handleSubmit(), [handleSubmit]);
 
     const handlePostError = useCallback((err: React.ReactNode) => {
         setPostError(err);
@@ -532,7 +534,7 @@ const AdvancedTextEditor = ({
             id={postId ? undefined : 'create_post'}
             data-testid={postId ? undefined : 'create-post'}
             className={(!postId && !fullWidthTextBox) ? 'center' : undefined}
-            onSubmit={handleSubmit}
+            onSubmit={noArgumentHandleSubmit}
         >
             {canPost && (draft.fileInfos.length > 0 || draft.uploadsInProgress.length > 0) && (
                 <FileLimitStickyBanner/>
@@ -657,7 +659,7 @@ const AdvancedTextEditor = ({
                     <MessageSubmitError
                         error={serverError}
                         submittedMessage={serverError.submittedMessage}
-                        handleSubmit={handleSubmit}
+                        handleSubmit={noArgumentHandleSubmit}
                     />
                 )}
                 <MsgTyping
