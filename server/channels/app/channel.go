@@ -2908,7 +2908,7 @@ func (a *App) SearchAllChannels(c request.CTX, term string, opts model.ChannelSe
 		ExcludeGroupConstrained:  opts.ExcludeGroupConstrained,
 		PolicyID:                 opts.PolicyID,
 		IncludePolicyID:          opts.IncludePolicyID,
-		IncludeSearchById:        opts.IncludeSearchById,
+		IncludeSearchByID:        opts.IncludeSearchById,
 		ExcludePolicyConstrained: opts.ExcludePolicyConstrained,
 		Public:                   opts.Public,
 		Private:                  opts.Private,
