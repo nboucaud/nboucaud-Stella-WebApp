@@ -30,6 +30,7 @@ const Drafts = makeAsyncComponent('Drafts', lazy(() => import('components/drafts
 );
 const PermalinkView = makeAsyncComponent('PermalinkView', lazy(() => import('components/permalink_view')));
 const PlaybookRunner = makeAsyncComponent('PlaybookRunner', lazy(() => import('components/channel_layout/playbook_runner')));
+const Membership = makeAsyncComponent('Membership', lazy(() => import('components/membership/membership')));
 
 type Props = PropsFromRedux & OwnProps;
 
@@ -113,6 +114,11 @@ export default class CenterChannel extends React.PureComponent<Props, State> {
                         <Route
                             path={`/:team(${TEAM_NAME_PATH_PATTERN})/drafts`}
                             component={Drafts}
+                        />
+
+                        <Route
+                            path={`/:team(${TEAM_NAME_PATH_PATTERN})/membership`}
+                            component={Membership}
                         />
 
                         <Redirect to={lastChannelPath}/>

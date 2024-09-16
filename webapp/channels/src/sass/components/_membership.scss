@@ -1,0 +1,155 @@
+@charset 'UTF-8';
+
+#membership {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+
+    .membership-header {
+        @extend .channel-header;
+    
+        padding: 16px;
+    
+        &__title {
+            display: flex;
+            gap: 8px;
+    
+            .heading {
+                padding-right: 4px;
+                border-right: 1px solid #3F435028;
+                font-size: 18px;
+            }
+    
+            .subheading {
+                color: #3F4350bf;
+                font-size: 12px;
+            }
+        }
+    }
+
+    .content {
+        overflow: auto;
+        padding-block: 24px;
+        flex: 1;
+    }
+    
+    .membership-plans {
+        display: flex;
+        gap: 24px;
+        padding-inline: 24px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .membership-card-container {
+        position: relative;
+        width: min(100%, 250px);
+
+        .current-plan {
+            position: absolute;
+            top: -32px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            color: #3DB887;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .membership-card {
+            background: white;
+            box-shadow: 0 10px 20px 0px rgba(0, 0, 0, .12);
+            display: flex;
+            width: 100%;
+            height: 100%;
+            gap: 18px;
+            flex-direction: column;
+            padding: 40px 12px 12px 12px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: block;
+                height: 20px;
+                width: 100%;
+                background-color: var(--strip-color);
+            }
+    
+            & .title-container {
+                height: 58px;
+                text-align: center;
+    
+                & .title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    display: block;
+                }
+            }
+        
+        
+            & .plan-info {
+                text-align: center;
+                color: #3F4350bf;
+                padding-inline: 18px;
+                min-height: 55px;
+            }
+        
+            & .pricing {
+                min-height: 135px;
+                text-align: center;
+        
+                &__price {
+                    font-size: 48px;
+                    font-weight: bolder;
+                    margin: 0;
+                }
+    
+                &__billed_anually {
+                    margin: 0;
+                    font-weight: 600;
+                }
+            }
+        
+            & .cta-button {
+                @include primary-button;
+                @include button-medium;
+            }
+    
+            & .top-features {
+                ul {
+                    list-style: none;
+                    position: relative;
+                }
+    
+                ul li {
+                    list-style-image: url("data:image/svg+xml,%3Csvg width='10' height='11' viewBox='0 0 10 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.91931 3.22434C9.34295 3.95269 9.55476 4.75165 9.55476 5.62121C9.55476 6.48334 9.34295 7.2823 8.91931 8.01808C8.48825 8.74643 7.90854 9.32614 7.18019 9.7572C6.44441 10.1808 5.64545 10.3927 4.78332 10.3927C3.91376 10.3927 3.11109 10.1808 2.3753 9.7572C1.64695 9.32614 1.06725 8.74643 0.636181 8.01808C0.212549 7.2823 0.000732422 6.48334 0.000732422 5.62121C0.000732422 4.75165 0.212549 3.95269 0.636181 3.22434C1.06725 2.48856 1.64695 1.90885 2.3753 1.48522C3.11109 1.05416 3.91376 0.838623 4.78332 0.838623C5.64545 0.838623 6.44441 1.05416 7.18019 1.48522C7.90854 1.90885 8.48825 2.48856 8.91931 3.22434Z' fill='%231C58D9'/%3E%3C/svg%3E%0A");
+                    padding-block: 3px;
+                    padding-left: 5px;
+                }
+            }
+        }
+    }
+    
+
+    .hint {
+        flex: 1;
+        width: 100%;
+        flex-basis: 100%;
+        display: flex;
+        justify-content: end;
+        padding-bottom: 24px;
+        padding-inline: 52px;
+        font-weight: 600;
+    }
+}
