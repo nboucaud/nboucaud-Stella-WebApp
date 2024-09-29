@@ -5,10 +5,12 @@
 
 
 .footer_logo {
-    width: 151px;
-    height: 77px;
+    width: 110px;
+    height: 38px;
     cursor: pointer;
-    margin-right: 42px;
+    margin-right: 20px;
+    object-fit: cover;
+    object-position: center;
 }
 
 .hfroute-footer {
@@ -17,12 +19,10 @@
     max-width: 1520px;
     height: auto;
     min-height: 80px;
-    position: absolute;
-    bottom: 0px;
     flex-flow: wrap;
     align-items: center;
     align-self: center;
-    padding: 0 0px;
+    padding-inline: 20px;
 
     .footer-link {
         @include link;
@@ -42,6 +42,13 @@
         color: #fff;
         font-size: 11px;
         line-height: 16px;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .hfroute-footer {
+        position: absolute;
+        bottom: 0;
     }
 }
 

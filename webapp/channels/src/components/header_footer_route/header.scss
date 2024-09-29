@@ -8,7 +8,7 @@
     display: flex;
     width: 100%;
     max-width: 1520px;
-    min-height: 100px;
+    min-height: 50px;
     align-self: center;
     padding: 0 40px;
 
@@ -61,14 +61,18 @@
 
     .header-back-button {
         position: absolute;
-        top: unset;
-        bottom: -8px;
-        width: auto;
-        padding: 0 0 0 0px;
-        background: none;
-
+        top: 15px;
+        left: 15px;
+        width: 28px;
+        height: 28px;
+        background: #0EB7B4;
+        border-radius: 8px;
+        
         a {
-            @include link;
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
         }
     }
 

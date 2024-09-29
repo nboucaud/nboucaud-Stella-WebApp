@@ -3,24 +3,17 @@
 
 @import 'utils/mixins';
 
-.mascot_image_signup {
-    position: absolute;
-    right: -6em;
-    bottom: -10em;
-    width: 259px !important;
-    height: 497px !important;
-}
-
 .icons_div1 {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0px 80px;
+    gap: 20px;
+    // padding: 0px 20px;
 }
 
 .signIn_icons {
     cursor: pointer;
-    width: 52px;
+    width: 48px;
     height: 48px;
 }
 
@@ -61,8 +54,8 @@
 
     .signup-body-content {
         display: flex;
-        height: fit-content;
-        gap: 20em;
+        flex-direction: column;
+        gap: 4em;
         flex: 1;
         align-items: center;
         justify-content: center;
@@ -95,9 +88,29 @@
         .signup-body-message-subtitle {
             padding-right: 0px;
             color: #fff;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 400;
-            line-height: 32px;
+
+            strong {
+                font-weight: 600;
+            }
+
+            &.new {
+                p:first-child {
+                    font-size: 0.8em !important;
+                }
+
+                p.emphasis {
+                    font-size: 2em !important;
+                    line-height: 56px;
+                    margin-bottom: 20px !important;
+                }
+
+                p.detail {
+                    font-size: 0.8em !important;
+                    color: #ffffff97;
+                }
+            }
         }
 
 
@@ -106,20 +119,23 @@
             color: #0EB7B4;
         }
 
-
         .signup-body-message {
             display: flex;
-            width: 540px;
+            width: 600px;
             flex-flow: column;
             align-self: flex-start;
 
             .signup-body-message-title {
-                color: var(--title-color-indigo-500);
+                color: #A5EFED !important;
                 font-family: Metropolis;
-                font-size: 45px;
+                font-size: calc(38px + 0.2vw);
                 font-weight: 600;
                 letter-spacing: -0.01em;
                 line-height: 88px;
+
+                span {
+                    color: #0EB7B4 !important;
+                }
             }
 
             .signup-body-message-svg {
@@ -164,6 +180,10 @@
             }
         }
 
+        .dont_p_signup {
+            margin-bottom: 0 !important;
+        }
+
         .signup-body-card {
             position: relative;
             width: 540px;
@@ -181,7 +201,7 @@
                 display: flex;
                 flex: 1;
                 flex-flow: column;
-                padding: 48px 25px;
+                padding: 20px 25px;
                 border: none;
                 box-shadow: none;
 
@@ -204,6 +224,8 @@
                 }
 
                 .signup-body-card-form {
+                    margin-top: -16px;
+
                     .signup-body-card-form-email-input,
                     .signup-body-card-form-name-input,
                     .signup-body-card-form-password-input {
@@ -231,7 +253,11 @@
                         @include button-large;
 
                         width: 100%;
-                        margin-top: 30px;
+                        // margin-top: 30px;
+                    }
+
+                    #signup-body-card-form-check-terms {
+                        font-size: 0.8em;
                     }
                 }
 
@@ -268,7 +294,7 @@
                 }
 
                 .signup-body-card-agreement {
-                    margin-top: 32px;
+                    margin-top: 16px;
                     color: rgba(var(--center-channel-color-rgb), 0.75);
                     font-size: 11px;
                     line-height: 16px;
@@ -324,141 +350,149 @@
     }
 }
 
-@media screen and (min-width: 1680px) {
+
+@media screen and (min-width: 1200px) {
     .signup-body .signup-body-content {
-        .signup-body-message,
-        .signup-body-card,
-        .signup-body-no-login {
-            width: 610px;
-        }
-
-        .signup-body-card{
-            width: 610px;
-        }
-
-        .signup-body-message .signup-body-message-title {
-            padding-right: 0px;
-            margin-top: 48px;
-        }
+        flex-direction: row;
     }
 }
 
-@media screen and (max-width: 1199px) {
-    .signup-body {
-        .signup-body-alternate-link {
-            padding-right: 24px;
-        }
+// @media screen and (min-width: 1680px) {
+//     .signup-body .signup-body-content {
+//         .signup-body-message,
+//         .signup-body-card,
+//         .signup-body-no-login {
+//             width: 610px;
+//         }
 
-        .signup-body-content {
-            flex-direction: column;
+//         .signup-body-card{
+//             width: 610px;
+//         }
 
-            .signup-body-message,
-            .signup-body-card,
-            .signup-body-no-login {
-                width: 640px;
-            }
+//         .signup-body-message .signup-body-message-title {
+//             padding-right: 0px;
+//             margin-top: 48px;
+//         }
+//     }
+// }
 
-            .signup-body-message {
-                align-self: center;
-                padding: 24px;
+// @media screen and (max-width: 1199px) {
+//     .signup-body {
+//         .signup-body-alternate-link {
+//             padding-right: 24px;
+//         }
 
-                .signup-body-message-title {
-                    padding-right: 0;
-                    font-size: 64px;
-                    line-height: 76px;
-                }
+//         .signup-body-content {
+//             flex-direction: column;
 
-                .signup-body-message-subtitle {
-                    padding: 0;
-                    margin: 0;
-                }
+//             .signup-body-message,
+//             .signup-body-card,
+//             .signup-body-no-login {
+//                 width: 640px;
+//             }
 
-                .signup-body-message-svg {
-                    display: none;
-                }
+//             .signup-body-message {
+//                 align-self: center;
+//                 padding: 24px;
 
-                &.custom-branding {
-                    display: none;
-                }
-            }
+//                 .signup-body-message-title {
+//                     padding-right: 0;
+//                     font-size: 64px;
+//                     line-height: 76px;
+//                 }
 
-            .signup-body-card {
-                border: none;
-                margin: 0;
-                background-color: unset;
-                box-shadow: none;
+//                 .signup-body-message-subtitle {
+//                     padding: 0;
+//                     margin: 0;
+//                 }
 
-                .signup-body-card-content {
-                    padding: 16px 24px;
+//                 .signup-body-message-svg {
+//                     display: none;
+//                 }
 
-                    .signup-body-card-title {
-                        display: none;
-                    }
+//                 &.custom-branding {
+//                     display: none;
+//                 }
+//             }
 
-                    .signup-body-card-banner {
-                        margin: 0 0 32px;
-                    }
+//             .signup-body-card {
+//                 border: none;
+//                 margin: 0;
+//                 background-color: unset;
+//                 box-shadow: none;
 
-                    .signup-body-card-form {
-                        .signup-body-card-form-email-input {
-                            margin-top: 0;
-                        }
+//                 .signup-body-card-content {
+//                     padding: 16px 24px;
 
-                        .signup-body-card-form-email-input,
-                        .signup-body-card-form-name-input,
-                        .signup-body-card-form-password-input {
-                            background-color: var(--center-channel-bg);
-                        }
-                    }
-                }
+//                     .signup-body-card-title {
+//                         display: none;
+//                     }
 
-                &.custom-branding {
-                    .signup-body-card-content {
-                        .signup-body-card-title {
-                            display: block;
-                            font-size: 32px;
-                            line-height: 40px;
-                        }
+//                     .signup-body-card-banner {
+//                         margin: 0 0 32px;
+//                     }
 
-                        .signup-body-custom-branding-markdown,
-                        .signup-body-message-subtitle {
-                            display: block;
-                            margin: 0 0 32px;
-                            text-align: left;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+//                     .signup-body-card-form {
+//                         .signup-body-card-form-email-input {
+//                             margin-top: 0;
+//                         }
 
-@media screen and (max-width: 699px) {
-    .signup-body {
-        margin: auto 0;
+//                         .signup-body-card-form-email-input,
+//                         .signup-body-card-form-name-input,
+//                         .signup-body-card-form-password-input {
+//                             background-color: var(--center-channel-bg);
+//                         }
+//                     }
+//                 }
 
-        .signup-body-content {
-            min-width: 375px;
+//                 &.custom-branding {
+//                     .signup-body-card-content {
+//                         .signup-body-card-title {
+//                             display: block;
+//                             font-size: 32px;
+//                             line-height: 40px;
+//                         }
 
-            .signup-body-card,
-            .signup-body-no-login {
-                width: 100%;
-            }
+//                         .signup-body-custom-branding-markdown,
+//                         .signup-body-message-subtitle {
+//                             display: block;
+//                             margin: 0 0 32px;
+//                             text-align: left;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
 
-            .signup-body-message {
-                width: auto;
-                align-self: flex-start;
-                padding: 24px;
+// @media screen and (max-width: 699px) {
+//     .signup-body {
+//         margin: auto 0;
 
-                .signup-body-message-title {
-                    padding-right: 0;
-                    font-size: 45px;
-                    line-height: 56px;
-                }
-            }
-        }
-    }
-}
+//         .signup-body-content {
+//             min-width: 375px;
+
+//             .signup-body-card,
+//             .signup-body-no-login {
+//                 width: 100%;
+//             }
+
+//             .signup-body-message {
+//                 width: auto;
+//                 align-self: flex-start;
+//                 padding: 24px;
+
+//                 .signup-body-message-title {
+//                     padding-right: 0;
+//                     font-size: 45px;
+//                     line-height: 56px;
+//                 }
+//             }
+//         }
+//     }
+// }
+
 .dont_p {
     font-size: 20px !important;
     line-height: 16px !important;
@@ -466,5 +500,4 @@
     display: flex !important;
     gap: 5px !important;
     margin-left: 0px !important;
-
 }

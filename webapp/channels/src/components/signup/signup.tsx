@@ -1,6 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+/* eslint-disable max-lines */
+
 import classNames from 'classnames';
 import throttle from 'lodash/throttle';
 import React, {useState, useEffect, useRef, useCallback} from 'react';
@@ -29,11 +31,8 @@ import {getGlobalItem} from 'selectors/storage';
 
 import AlertBanner from 'components/alert_banner';
 import type {ModeType, AlertBannerProps} from 'components/alert_banner';
-import useCWSAvailabilityCheck, {CSWAvailabilityCheckTypes} from 'components/common/hooks/useCWSAvailabilityCheck';
 import LaptopAlertSVG from 'components/common/svg_images_components/laptop_alert_svg';
-import ManWithLaptopSVG from 'components/common/svg_images_components/man_with_laptop_svg';
 import DesktopAuthToken from 'components/desktop_auth_token';
-import ExternalLink from 'components/external_link';
 import ExternalLoginButton from 'components/external_login_button/external_login_button';
 import type {ExternalLoginButtonType} from 'components/external_login_button/external_login_button';
 import FormattedMarkdownMessage from 'components/formatted_markdown_message';
@@ -41,6 +40,7 @@ import AlternateLinkLayout from 'components/header_footer_route/content_layouts/
 import ColumnLayout from 'components/header_footer_route/content_layouts/column';
 import type {CustomizeHeaderType} from 'components/header_footer_route/header_footer_route';
 import LoadingScreen from 'components/loading_screen';
+import TypingAnimation from 'components/login/typing_animation';
 import Markdown from 'components/markdown';
 import SaveButton from 'components/save_button';
 import LockIcon from 'components/widgets/icons/lock_icon';
@@ -53,19 +53,18 @@ import Input, {SIZE} from 'components/widgets/inputs/input/input';
 import type {CustomMessageInputType} from 'components/widgets/inputs/input/input';
 import PasswordInput from 'components/widgets/inputs/password_input/password_input';
 
-import {Constants, HostedCustomerLinks, ItemStatus, ValidationErrors} from 'utils/constants';
+import Github from 'images/icons/github.png';
+import Google from 'images/icons/google.png';
+import linkedin from 'images/icons/linkedin.png';
+import macImage from 'images/icons/mac.png';
+import {Constants, ItemStatus, ValidationErrors} from 'utils/constants';
 import {isValidPassword} from 'utils/password';
 import {isDesktopApp} from 'utils/user_agent';
 import {isValidUsername, getRoleFromTrackFlow, getMediumFromTrackFlow} from 'utils/utils';
 
 import type {GlobalState} from 'types/store';
-import Google from 'images/icons/google.png';
-import Github from 'images/icons/github.png';
-import macImage from 'images/icons/mac.png';
-import whatsapp from 'images/icons/whatsapp.png';
-import Mascot from 'images/gif_picker/Mascots.png';
+
 import './signup.scss';
-import TypingAnimation from 'components/login/typing_animation';
 
 const MOBILE_SCREEN_WIDTH = 1200;
 
@@ -149,15 +148,11 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
     const [teamName, setTeamName] = useState(parsedTeamName ?? '');
     const [alertBanner, setAlertBanner] = useState<AlertBannerProps | null>(null);
     const [isMobileView, setIsMobileView] = useState(false);
-    const [subscribeToSecurityNewsletter, setSubscribeToSecurityNewsletter] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
 
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
     };
-
-
-    const cwsAvailability = useCWSAvailabilityCheck();
 
     const enableExternalSignup = enableSignUpWithGitLab || enableSignUpWithOffice365 || enableSignUpWithGoogle || enableSignUpWithOpenId || enableLDAP || enableSAML;
     const hasError = Boolean(emailError || nameError || passwordError || serverError || alertBanner);
@@ -167,63 +162,53 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
 
     const [desktopLoginLink, setDesktopLoginLink] = useState('');
 
-    const subscribeToSecurityNewsletterFunc = () => {
-        try {
-            Client4.subscribeToNewsletter({email, subscribed_content: 'security_newsletter'});
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error(error);
-        }
-    };
-
     const wordsArray = [
-        'therefore I solve.',
-        'therefore I change.',
-        'therefore I adapt.',
-        'therefore I wonder.',
-        'therefore I believe.',
-        'therefore I question.',
-        'therefore I evolve.',
-        'therefore I challenge.',
-        'therefore I create.',
-        'therefore I grow.',
-        'therefore I connect.',
-        'therefore I explore.',
-        'therefore I see.',
-        'therefore I choose.',
-        'therefore I change the game.',
-        'therefore I defy.',
-        'therefore I rebel.',
-        'therefore I innovate.',
-        'therefore I imagine.',
-        'therefore I progress.',
-        'therefore I dream.',
-        'therefore I influence.',
-        'therefore I transform.',
-        'therefore I decide.',
-        'therefore I empower.',
-        'therefore I amplify.',
-        'therefore I know.',
-        'therefore I move.',
-        'therefore I build.',
-        'therefore I connect.',
-        'therefore I support.',
-        'therefore I collaborate.',
-        'therefore I accelerate.',
-        'therefore I discover.',
-        'therefore I lead.',
-        'therefore I inspire.',
-        'therefore I push.',
-        'therefore I optimize.',
-        'therefore I love.',
-        'therefore I advance.',
-        'therefore I feel.',
-        'therefore I forgive.',
-        'therefore I design.',
-        'therefore I reflect.',
-        'therefore I develop.',
-        'therefore I improve.',
-        'therefore I become.'
+        'solve.',
+        'change.',
+        'adapt.',
+        'wonder.',
+        'believe.',
+        'question.',
+        'evolve.',
+        'challenge.',
+        'create.',
+        'grow.',
+        'connect.',
+        'explore.',
+        'see.',
+        'choose.',
+        'defy.',
+        'rebel.',
+        'innovate.',
+        'imagine.',
+        'progress.',
+        'dream.',
+        'influence.',
+        'transform.',
+        'decide.',
+        'empower.',
+        'amplify.',
+        'know.',
+        'move.',
+        'build.',
+        'connect.',
+        'support.',
+        'collaborate.',
+        'accelerate.',
+        'discover.',
+        'lead.',
+        'inspire.',
+        'push.',
+        'optimize.',
+        'love.',
+        'advance.',
+        'feel.',
+        'forgive.',
+        'design.',
+        'reflect.',
+        'develop.',
+        'improve.',
+        'become.',
     ];
     const getExternalSignupOptions = () => {
         const externalLoginOptions: ExternalLoginButtonType[] = [];
@@ -471,13 +456,9 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
 
         return (
             <p className='signup-body-message-subtitle'>
-                {/* {formatMessage({
-                    id: 'signup_user_completed.subtitle',
-                    defaultMessage: 'Create your Mattermost account to start collaborating with your team',
-                })} */}
-                     Welcome to the Infogito Platform.
-                <br />
-                Home of Stella v1. Your Personal Problem-Solver.
+                {'Welcome to the Infogito Platform.'}
+                <br/>
+                {'Home of the '} <strong>{'Discovery Engine'}</strong>
             </p>
         );
     };
@@ -583,7 +564,6 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
             telemetryEvents.errors.push({field: 'email', rule: 'not_provided'});
             isValid = false;
         } else if (!isEmail(providedEmail)) {
-            
             setEmailError(formatMessage({id: 'signup_user_completed.validEmail', defaultMessage: 'Please enter a valid email address'}));
             setAlertBanner({
                 mode: 'danger',
@@ -689,77 +669,12 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
             }
 
             await handleSignupSuccess(user, data!);
-            if (subscribeToSecurityNewsletter) {
-                subscribeToSecurityNewsletterFunc();
-            }
         } else {
             setIsWaiting(false);
         }
     };
 
     const handleReturnButtonOnClick = () => history.replace('/');
-
-    const getNewsletterCheck = () => {
-        if (cwsAvailability === CSWAvailabilityCheckTypes.Available) {
-            return (
-                <CheckInput
-                    id='signup-body-card-form-check-newsletter'
-                    ariaLabel={formatMessage({id: 'newsletter_optin.checkmark.box', defaultMessage: 'newsletter checkbox'})}
-                    name='newsletter'
-                    onChange={() => setSubscribeToSecurityNewsletter(!subscribeToSecurityNewsletter)}
-                    text={
-                        formatMessage(
-                            {id: 'newsletter_optin.checkmark.text', defaultMessage: '<span>I would like to receive Mattermost security updates via newsletter.</span> By subscribing, I consent to receive emails from Mattermost with product updates, promotions, and company news. I have read the <a>Privacy Policy</a> and understand that I can <aa>unsubscribe</aa> at any time'},
-                            {
-                                a: (chunks: React.ReactNode | React.ReactNodeArray) => (
-                                    <ExternalLink
-                                        location='signup-newsletter-checkmark'
-                                        href={HostedCustomerLinks.PRIVACY}
-                                    >
-                                        {chunks}
-                                    </ExternalLink>
-                                ),
-                                aa: (chunks: React.ReactNode | React.ReactNodeArray) => (
-                                    <ExternalLink
-                                        location='signup-newsletter-checkmark'
-                                        href={HostedCustomerLinks.NEWSLETTER_UNSUBSCRIBE_LINK}
-                                    >
-                                        {chunks}
-                                    </ExternalLink>
-                                ),
-                                span: (chunks: React.ReactNode | React.ReactNodeArray) => (
-                                    <span className='header'>{chunks}</span>
-                                ),
-                            },
-                        )}
-                    checked={subscribeToSecurityNewsletter}
-                />
-            );
-        }
-        return (
-            <div className='newsletter'>
-                <span className='interested'>
-                    {formatMessage({id: 'newsletter_optin.title', defaultMessage: 'Interested in receiving Mattermost security, product, promotions, and company updates updates via newsletter?'})}
-                </span>
-                <span className='link'>
-                    {formatMessage(
-                        {id: 'newsletter_optin.desc', defaultMessage: 'Sign up at <a>{link}</a>.'},
-                        {
-                            link: HostedCustomerLinks.SECURITY_UPDATES,
-                            a: (chunks: React.ReactNode | React.ReactNodeArray) => (
-                                <ExternalLink
-                                    location='signup'
-                                    href={HostedCustomerLinks.SECURITY_UPDATES}
-                                >
-                                    {chunks}
-                                </ExternalLink>
-                            ),
-                        },
-                    )}
-                </span>
-            </div>
-        );
-    };
 
     const handleOnBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>, inputId: string) => {
         const text = e.target.value;
@@ -838,47 +753,43 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
 
         return (
             <>
-                <div
-                    className={classNames(
-                        'signup-body-message',
-                        {
-                            'custom-branding': enableCustomBrand,
-                            'with-brand-image': enableCustomBrand && !brandImageError,
-                            'with-alternate-link': !isMobileView,
-                        },
-                    )}
-                >
-                    {enableCustomBrand && !brandImageError ? (
-                        <img
-                            className={classNames('signup-body-custom-branding-image')}
-                            alt='brand image'
-                            src={Client4.getBrandImageUrl('0')}
-                            onError={handleBrandImageError}
-                        />
-                    ) : (
-                        <h1 className='signup-body-message-title'>
-                            {formatMessage({id: 'login.title', defaultMessage: 'I think,'})}
-                            <span>
-                                <TypingAnimation words={wordsArray} />
-                            </span>
-                        </h1>
-                    )}
-                    {getMessageSubtitle()}
-                    {!enableCustomBrand && (
-                        <div className='signup-body-message-svg'>
-                            {/* <ManWithLaptopSVG/> */}
-                        </div>
-                    )}
-                </div>
+                {!isMobileView && (
+                    <div
+                        className={classNames(
+                            'signup-body-message',
+                            {
+                                'custom-branding': enableCustomBrand,
+                                'with-brand-image': enableCustomBrand && !brandImageError,
+                                'with-alternate-link': !isMobileView,
+                            },
+                        )}
+                    >
+                        {enableCustomBrand && !brandImageError ? (
+                            <img
+                                className={classNames('signup-body-custom-branding-image')}
+                                alt='brand image'
+                                src={Client4.getBrandImageUrl('0')}
+                                onError={handleBrandImageError}
+                            />
+                        ) : (
+                            <h1 className='signup-body-message-title'>
+                                {'I think, '}<span>{'therefore I '}
+                                    <TypingAnimation words={wordsArray}/>
+                                </span>
+                            </h1>
+                        )}
+                        {getMessageSubtitle()}
+                    </div>
+                )}
                 <div className='signup-body-action'>
-                <p className='dont_p_signup'><span>{!isMobileView && getAlternateLink()}</span></p>
+                    {!isMobileView && <p className='dont_p_signup'>{getAlternateLink()}</p>}
                     <div className={classNames('signup-body-card', {'custom-branding': enableCustomBrand, 'with-error': hasError})}>
                         <div
                             className='signup-body-card-content'
                             onKeyDown={onEnterKeyDown}
                             tabIndex={0}
                         >
-                             {enableCustomBrand && getMessageSubtitle()}
+                            {enableCustomBrand && getMessageSubtitle()}
                             {alertBanner && (
                                 <AlertBanner
                                     className='signup-body-card-banner'
@@ -890,7 +801,7 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
                             <p className='signup-body-card-title'>
                                 {getCardTitle()}
                             </p>
-                           
+
                             {enableSignUpWithEmail && (
                                 <div className='signup-body-card-form'>
                                     <Input
@@ -944,39 +855,44 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
                                         error={passwordError}
                                         onBlur={(e) => handleOnBlur(e, 'password')}
                                     />
-                                    
-
                                     <CheckInput
-                                id='signup-body-card-form-check-terms'
-                                ariaLabel='terms and conditions checkbox'
-                                name='terms'
-                                onChange={handleCheckboxChange}
-                                text={`By creating an account, you agree to Infogito's Terms of Use, and Privacy Policy. You consent to the collection, use, and storage of your data as outlined in our Privacy Policy, including for account management, service improvements, and personalized experiences. You can manage your data preferences at any time in your account settings.`
-                                }
-                                checked={isChecked}
-                            />
+                                        id='signup-body-card-form-check-terms'
+                                        ariaLabel='terms and conditions checkbox'
+                                        name='terms'
+                                        onChange={handleCheckboxChange}
+                                        text={'By creating an account, you agree to Infogito\'s Terms of Use, and Privacy Policy. You consent to the collection, use, and storage of your data as outlined in our Privacy Policy, including for account management, service improvements, and personalized experiences. You can manage your data preferences at any time in your account settings.'}
+                                        checked={isChecked}
+                                    />
                                     <SaveButton
                                         extraClasses='signup-body-card-form-button-submit large'
                                         saving={isWaiting}
                                         disabled={!isChecked || !canSubmit}
-                              
                                         onClick={handleSubmit}
                                         defaultMessage={formatMessage({id: 'signup_user_completed.create', defaultMessage: 'Create account'})}
                                         savingMessage={formatMessage({id: 'signup_user_completed.saving', defaultMessage: 'Creating account…'})}
                                     />
 
-<div className="text-with-lines1">or</div>
+                                    <div className='text-with-lines1'>{'or'}</div>
 
-<div className='icons_div1'>
-    <img src={Google} alt="" className='signIn_icons' />
-    <img src={macImage} alt="" className='signIn_icons' />
+                                    <div className='icons_div1'>
+                                        <img
+                                            src={Google}
+                                            className='signIn_icons'
+                                        />
+                                        <img
+                                            src={macImage}
+                                            className='signIn_icons'
+                                        />
 
-    <img src={Github} alt="" className='signIn_icons' />
-    <img src={whatsapp} alt="" className='signIn_icons' />
-
-</div>
-
-
+                                        <img
+                                            src={Github}
+                                            className='signIn_icons'
+                                        />
+                                        <img
+                                            src={linkedin}
+                                            className='signIn_icons'
+                                        />
+                                    </div>
                                 </div>
                             )}
                             {enableSignUpWithEmail && enableExternalSignup && (
@@ -1011,10 +927,6 @@ const Signup = ({onCustomizeHeader}: SignupProps) => {
                                 </p>
                             )}
                         </div>
-
-                        <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHlzaXRwcmY3MzRuYXJiNDhsb3U0aW01NWRmdGkxYTNkNXF5YXgwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/mSR4Sqv5IuZCIDSwBq/giphy.gif" alt="" className='mascot_image_signup' />
-
-
                     </div>
                 </div>
             </>

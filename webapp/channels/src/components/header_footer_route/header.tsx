@@ -3,10 +3,10 @@
 
 import classNames from 'classnames';
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import {useSelector} from 'react-redux';
+import {Link} from 'react-router-dom';
 
-import { getConfig, getLicense } from 'mattermost-redux/selectors/entities/general';
+import {getConfig, getLicense} from 'mattermost-redux/selectors/entities/general';
 
 import BackButton from 'components/common/back_button';
 import Logo from 'components/common/svg_images_components/logo_dark_blue_svg';
@@ -19,15 +19,15 @@ export type HeaderProps = {
     onBackButtonClick?: React.EventHandler<React.MouseEvent>;
 }
 
-const Header = ({ alternateLink, backButtonURL, onBackButtonClick }: HeaderProps) => {
-    const { SiteName } = useSelector(getConfig);
+const Header = ({alternateLink, backButtonURL, onBackButtonClick}: HeaderProps) => {
+    const {SiteName} = useSelector(getConfig);
     const license = useSelector(getLicense);
 
     const ariaLabel = SiteName || 'Mattermost';
 
     let freeBanner = null;
     if (license.IsLicensed === 'false') {
-        freeBanner = <><Logo /><span className='freeBadge'>{'FREE EDITION'}</span></>;
+        freeBanner = <><Logo/><span className='freeBadge'>{'FREE EDITION'}</span></>;
     }
 
     let title: React.ReactNode = SiteName;
@@ -35,12 +35,12 @@ const Header = ({ alternateLink, backButtonURL, onBackButtonClick }: HeaderProps
         if (freeBanner) {
             title = '';
         } else {
-            title = <Logo />;
+            title = <Logo/>;
         }
     }
 
     return (
-        <div className={classNames('hfroute-header', { 'has-free-banner': freeBanner, 'has-custom-site-name': title })}>
+        <div className={classNames('hfroute-header', {'has-free-banner': freeBanner, 'has-custom-site-name': title})}>
             <div className='header-main'>
                 <div>
                     {freeBanner &&

@@ -3,9 +3,8 @@
 
 import classNames from 'classnames';
 import React from 'react';
-import {FormattedMessage, useIntl} from 'react-intl';
 import {Link} from 'react-router-dom';
-import BackImage from 'images/icons/back.png';
+
 type Props = {
 
     /**
@@ -22,8 +21,6 @@ type Props = {
 }
 
 const BackButton = ({url, className, onClick}: Props): JSX.Element => {
-    const {formatMessage} = useIntl();
-
     return (
         <div className={classNames('signup-header', className)}>
             <Link
@@ -31,18 +28,18 @@ const BackButton = ({url, className, onClick}: Props): JSX.Element => {
                 onClick={onClick}
                 to={url}
             >
-    <img src={BackImage} alt="" style={{width: '28px ' , height: '27px' }}  />
-                
-{/* 
-                <span
-                    id='back_button_icon'
-                    className='fa fa-1x fa-angle-left'
-                    title={formatMessage({id: 'generic_icons.back', defaultMessage: 'Back Icon'})}
-                /> */}
-                {/* <FormattedMessage
-                    id='web.header.back'
-                    defaultMessage='Back'
-                /> */}
+                <svg
+                    width='9'
+                    height='15'
+                    viewBox='0 0 9 15'
+                    fill='none'
+                    xmlns='http://www.w3.org/2000/svg'
+                >
+                    <path
+                        d='M7.64331 15L0 7.5L7.64331 0L9 1.33125L2.71338 7.5L9 13.6688L7.64331 15Z'
+                        fill='white'
+                    />
+                </svg>
             </Link>
         </div>
     );
