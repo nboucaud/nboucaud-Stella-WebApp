@@ -1,16 +1,45 @@
-import React from "react";
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
-const Browser_Body = () => {
+import React from 'react';
+
+import CameraOutlineIcon from '@mattermost/compass-icons/components/camera-outline';
+
+import './browser_body.scss';
+
+import logoImage from '../../../images/infogito.png';
+import backgroundImage from '../../../images/internet_browser_background.jpg';
+
+const BrowserBody = () => {
     return (
         <div
-            style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
+            id='BrowserBody'
+            className='BrowserBody'
         >
+            <img
+                className='background'
+                src={backgroundImage}
+                loading='lazy'
+            />
+
+            <div className='BrowserBody__content'>
+                <div className='searchbar'>
+                    <i className='icon icon-magnify'/>
+                    <input placeholder='Search google or type a URL'/>
+                    <i className='icon icon-microphone'/>
+                    <CameraOutlineIcon
+                        className='icon'
+                        color='black'
+                    />
+                </div>
+
+                <img
+                    className='logo'
+                    src={logoImage}
+                />
+            </div>
         </div>
     );
 };
 
-export default Browser_Body;
+export default BrowserBody;

@@ -1,16 +1,20 @@
-import React from 'react'
-import Browser_Header from './browser_header'
-import Browser_Search_Section from './browser_search_section'
-import Browser_Body from './browser_body'
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
-const Browser_View = () => {
-  return (
-    <>
-    <Browser_Header/>
-    <Browser_Search_Section/>
-    <Browser_Body/>
-    </>
-  )
-}
+import React from 'react';
 
-export default Browser_View
+import BrowserBody from './browser_body';
+import BrowserHeader from './browser_header';
+import BrowserSearchSection from './browser_search_section';
+
+const BrowserView = () => {
+    return (
+        <div style={{marginLeft: '-1px', display: 'flex', flexDirection: 'column', height: '100%'}}>
+            <BrowserHeader/>
+            <BrowserSearchSection/>
+            <BrowserBody/>
+        </div>
+    );
+};
+
+export default BrowserView;

@@ -1,0 +1,64 @@
+.BrowserBody {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    flex: 1;
+
+    .background {
+        position: absolute;
+        inset: 0;
+        user-select: none;
+        pointer-events: none;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    &__content {
+        position: absolute;
+        inset: 0;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: black;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        padding: 20px;
+
+        .searchbar {
+            padding-inline: 1em;
+            width: min(100%, 520px);
+            background-color: rgba(149, 255, 246, 0.628);
+            backdrop-filter: blur(8px);
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            i {
+                padding-block: .3em;
+                color: black;
+            }
+
+            input {
+                flex: 1;
+                background-color: transparent;
+                border: none;
+                outline: none;
+                padding-block: 1em;
+                color: black;
+            }
+        }
+
+        .logo {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 80px;
+            height: 30px;
+            object-fit: cover;
+            object-position: center;
+        }
+    }
+}
