@@ -6,7 +6,7 @@ import React from 'react';
 const CtaButton = ({children, ...props}: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>) => {
     return (
         <button
-            className='cta-button'
+            className='cta-button btn btn-primary btn-md'
             {...props}
         >
             {children}

@@ -50,6 +50,21 @@ const gitoPlusPlan: MembershipPlan = {
     ],
 };
 
+const gitoLinkPlan: MembershipPlan = {
+    title: 'Gito Link',
+    info: 'Improved solutions for performing teams',
+    pricing: '$7.99',
+    pricingSubtext: 'USD per seat/month',
+    isBilledAnnually: true,
+    topFeatures: [
+        'AD/LDAP group sync',
+        'Advanced mobile security via ID-only push notifications',
+        'Advanced roles and permissions',
+        'Advanced compliance management',
+        'Playbook analytics dashboard',
+    ],
+};
+
 const gitoSuitePlan: MembershipPlan = {
     title: 'GitoSuite',
     titleSubtext: '(Enterprise)',
@@ -107,7 +122,19 @@ const Membership = () => {
                         <MembershipCard.Info/>
                         <MembershipCard.Pricing/>
                         <MembershipCard.CtaButton>
-                            {'Contact Sales'}
+                            {'Upgrade'}
+                        </MembershipCard.CtaButton>
+                        <MembershipCard.TopFeatures/>
+                    </MembershipCard>
+                    <MembershipCard
+                        membershipPlan={gitoLinkPlan}
+                        color='#FFBC1F'
+                    >
+                        <MembershipCard.Title/>
+                        <MembershipCard.Info/>
+                        <MembershipCard.Pricing/>
+                        <MembershipCard.CtaButton>
+                            {'Upgrade'}
                         </MembershipCard.CtaButton>
                         <MembershipCard.TopFeatures/>
                     </MembershipCard>

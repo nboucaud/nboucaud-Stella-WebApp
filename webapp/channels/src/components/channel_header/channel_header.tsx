@@ -8,7 +8,6 @@ import {Overlay} from 'react-bootstrap';
 import {FormattedMessage, injectIntl} from 'react-intl';
 import type {IntlShape} from 'react-intl';
 
-import CameraOutlineIcon from '@mattermost/compass-icons/components/camera-outline';
 import PhoneOutlineIcon from '@mattermost/compass-icons/components/phone-outline';
 import type {Channel, ChannelMembership, ChannelNotifyProps} from '@mattermost/types/channels';
 import type {UserCustomStatus, UserProfile} from '@mattermost/types/users';
@@ -641,7 +640,7 @@ class ChannelHeader extends React.PureComponent<Props, State> {
                         tooltip={this.props.intl.formatMessage({id: 'channel_header.voice_call', defaultMessage: 'Voice Call'})}
                     />
                     <HeaderIconWrapper
-                        iconComponent={<CameraOutlineIcon size={18}/>}
+                        iconComponent={<CameraIcon/>}
                         buttonId={'channelVideoCallButton'}
                         onClick={() => {}}
                         tooltip={this.props.intl.formatMessage({id: 'channel_header.video_call_btn', defaultMessage: 'Video Call'})}
@@ -651,6 +650,45 @@ class ChannelHeader extends React.PureComponent<Props, State> {
             </div>
         );
     }
+}
+
+function CameraIcon() {
+    return (
+        <svg
+            width='23'
+            height='22'
+            viewBox='0 0 25 24'
+            fill='none'
+            xmlns='http://www.w3.org/2000/svg'
+        >
+            <g clipPath='url(#clip0_799_476)'>
+                <path
+                    d='M23.4286 6.85714L16.9286 11.5L23.4286 16.1429V6.85714Z'
+                    stroke='#84878F'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                />
+                <path
+                    d='M15.0714 5H4.85714C3.83147 5 3 5.83147 3 6.85714V16.1429C3 17.1685 3.83147 18 4.85714 18H15.0714C16.0971 18 16.9286 17.1685 16.9286 16.1429V6.85714C16.9286 5.83147 16.0971 5 15.0714 5Z'
+                    stroke='#84878F'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                />
+            </g>
+            <defs>
+                <clipPath>
+                    <rect
+                        width='22'
+                        height='15'
+                        fill='white'
+                        transform='translate(2 4)'
+                    />
+                </clipPath>
+            </defs>
+        </svg>
+    );
 }
 
 export default injectIntl(ChannelHeader);

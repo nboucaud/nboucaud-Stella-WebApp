@@ -65,6 +65,7 @@ const RightControls = ({productId = null}: Props): JSX.Element => {
         <RightControlsContainer
             id={'RightControlsContainer'}
         >
+            <button className='btn btn-xs btn-primary'>{'Membership'}</button>
             <PlanUpgradeButton/>
             {isChannels(productId) ? (
                 <>

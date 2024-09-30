@@ -60,5 +60,15 @@
             object-fit: cover;
             object-position: center;
         }
+
+        .robot {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 40px;
+            height: 120px;
+            object-fit: cover;
+            object-position: center;
+        }
     }
 }

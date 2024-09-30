@@ -44,8 +44,10 @@ import PerformanceReporterController from './performance_reporter_controller';
 import RootProvider from './root_provider';
 import RootRedirect from './root_redirect';
 
+import auditIcon from '../../images/audit.png';
+import comboChartIcon from '../../images/combo-chart.png';
 import logo from '../../images/infogito.png';
-import notesIcon from '../../images/notes-icon.png';
+import notebookIcon from '../../images/notebook.png';
 import storeIcon from '../../images/store.png';
 
 import type {PropsFromRedux} from './index';
@@ -573,9 +575,20 @@ export default class Root extends React.PureComponent<Props, State> {
                             </div>
                             <div className='home-screen-wrapper__sidebar right'>
                                 <div className='top'>
-                                    <button>
-                                        <img src={notesIcon}/>
-                                    </button>
+                                    <div className='group'>
+                                        <button>
+                                            <img src={comboChartIcon}/>
+                                        </button>
+                                        <button>
+                                            <img src={auditIcon}/>
+                                        </button>
+                                        <button>
+                                            <img src={notebookIcon}/>
+                                        </button>
+                                        <button className='invert'>
+                                            <i className='icon icon-plus'/>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className='bottom'>
                                     <button>

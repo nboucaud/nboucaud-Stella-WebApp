@@ -45,7 +45,7 @@
 
     .membership-card-container {
         position: relative;
-        width: min(100%, 250px);
+        width: min(100%, 180px);
 
         .current-plan {
             position: absolute;
@@ -102,7 +102,7 @@
                 text-align: center;
                 color: #3F4350bf;
                 padding-inline: 18px;
-                min-height: 55px;
+                min-height: 100px;
             }
         
             & .pricing {
@@ -119,11 +119,6 @@
                     margin: 0;
                     font-weight: 600;
                 }
-            }
-        
-            & .cta-button {
-                @include primary-button;
-                @include button-medium;
             }
     
             & .top-features {

@@ -15,6 +15,8 @@ import type {ApplyMarkdownOptions} from 'utils/markdown/apply_markdown';
 import FormattingIcon, {IconContainer} from './formatting_icon';
 import {useFormattingBarControls} from './hooks';
 
+import messengerIcon from '../../../images/messenger.png';
+
 export const Separator = styled.div`
     display: block;
     position: relative;
@@ -279,6 +281,19 @@ const FormattingBar = (props: FormattingBarProps): JSX.Element => {
                     })}
                 </HiddenControlsContainer>
             </CSSTransition>
+
+            <button
+                id='messengerIcon'
+                style={{
+                    borderRadius: '50%',
+                    height: '40px',
+                    width: '40px',
+                    background: 'none',
+                    border: 'none',
+                }}
+            >
+                <img src={messengerIcon}/>
+            </button>
         </FormattingBarContainer>
     );
 };

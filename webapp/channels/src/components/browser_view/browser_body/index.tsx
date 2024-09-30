@@ -8,7 +8,8 @@ import CameraOutlineIcon from '@mattermost/compass-icons/components/camera-outli
 import './browser_body.scss';
 
 import logoImage from '../../../images/infogito.png';
-import backgroundImage from '../../../images/internet_browser_background.jpg';
+import backgroundImage from '../../../images/internet_browser_background.png';
+import robotImage from '../../../images/internet_browser_robot.png';
 
 const BrowserBody = () => {
     return (
@@ -36,6 +37,10 @@ const BrowserBody = () => {
                 <img
                     className='logo'
                     src={logoImage}
+                />
+                <img
+                    className='robot'
+                    src={robotImage}
                 />
             </div>
         </div>

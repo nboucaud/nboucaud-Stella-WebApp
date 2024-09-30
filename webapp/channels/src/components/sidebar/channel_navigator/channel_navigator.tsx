@@ -2,7 +2,6 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import {FormattedMessage} from 'react-intl';
 
 import {trackEvent} from 'actions/telemetry_actions';
 
@@ -97,10 +96,7 @@ export default class ChannelNavigator extends React.PureComponent<Props> {
                     data-testid='SidebarChannelNavigatorButton'
                 >
                     <i className='icon icon-magnify'/>
-                    <FormattedMessage
-                        id='sidebar_left.channel_navigator.jumpTo'
-                        defaultMessage='Find channel'
-                    />
+                    <span>{'Search'}</span>
                     <div className={'SidebarChannelNavigator_shortcutText'}>
                         {`${UserAgent.isMac() ? '⌘' : 'Ctrl+'}K`}
                     </div>

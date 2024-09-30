@@ -394,7 +394,7 @@ export default class SidebarCategory extends React.PureComponent<Props, State> {
 const categoryNames = defineMessages({
     channels: {
         id: 'sidebar.types.channels',
-        defaultMessage: 'CHANNELS',
+        defaultMessage: 'APPS',
     },
     direct_messages: {
         id: 'sidebar.types.chat',
