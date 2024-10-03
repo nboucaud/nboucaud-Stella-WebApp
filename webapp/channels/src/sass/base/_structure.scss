@@ -393,3 +393,98 @@ body.app__body #root {
 img {
     max-width: 100%;
 }
+
+.stella-popover {
+    color: black;
+    width: 350px;
+    height: 480px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .heading {
+        flex: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+
+        &_text {
+            margin: 0;
+            padding: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 5px;
+            color: black;
+
+            i {
+                color: black;
+            }
+        }
+    }
+
+    .body {
+        flex: 1;
+        height: 100%;
+        overflow: auto;
+        padding: 10px;
+
+        .empty {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+
+            div {
+                font-weight: 600;
+            }
+        }
+
+        .messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: white;
+
+            .message {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+                background-color: #14B8A6;
+                border-radius: 18px;
+                box-shadow: 0px 1px 6px 5px #eee;
+
+                img {
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                }
+
+                .text {
+                    color: white;
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2; /* number of lines to show */
+                            line-clamp: 2; 
+                    -webkit-box-orient: vertical
+                }
+
+                &.with-timestamp {
+                    flex-direction: column;
+                    .timestamp {
+                        width: 100%;
+                        text-align: right;
+                        color: white;
+                        font-size: 0.8em;
+                    }
+                }
+            }
+        }
+    }
+}

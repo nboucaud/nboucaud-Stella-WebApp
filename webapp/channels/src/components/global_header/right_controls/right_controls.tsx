@@ -3,6 +3,7 @@
 
 import React from 'react';
 import {useSelector} from 'react-redux';
+import {Link, useLocation} from 'react-router-dom';
 import styled from 'styled-components';
 
 import type {ProductIdentifier} from '@mattermost/types/products';
@@ -58,6 +59,9 @@ const RightControls = ({productId = null}: Props): JSX.Element => {
     // guest validation to see which point the messaging tour tip starts
     const isGuestUser = useSelector((state: GlobalState) => isCurrentUserGuestUser(state));
     const tourStep = isGuestUser ? OnboardingTourStepsForGuestUsers.CUSTOMIZE_EXPERIENCE : OnboardingTourSteps.CUSTOMIZE_EXPERIENCE;
+    const {pathname} = useLocation();
+    const urlParts = pathname.split('/');
+    const teamName = urlParts.length > 1 ? `/${urlParts[1]}` : '';
 
     const showCustomizeTip = useShowOnboardingTutorialStep(tourStep);
 
@@ -65,7 +69,10 @@ const RightControls = ({productId = null}: Props): JSX.Element => {
         <RightControlsContainer
             id={'RightControlsContainer'}
         >
-            <button className='btn btn-xs btn-primary'>{'Membership'}</button>
+            <Link
+                className='btn btn-xs btn-primary'
+                to={`${teamName}/membership`}
+            >{'Membership'}</Link>
             <PlanUpgradeButton/>
             {isChannels(productId) ? (
                 <>

@@ -97,6 +97,19 @@ const SearchHint = (props: Props): JSX.Element => {
                                     defaultMessage='Files'
                                 />
                             </button>}
+
+                        <button
+                            className={classNames({highlighted: props.highlightedIndex === 1})}
+                            onClick={() => props.onSearchTypeSelected && props.onSearchTypeSelected('files')}
+                            onBlur={() => props.onElementBlur && props.onElementBlur()}
+                            onFocus={() => props.onElementFocus && props.onElementFocus()}
+                        >
+                            <i className='icon icon-account-outline'/>
+                            <FormattedMessage
+                                id='search_bar.usage.search_type_users'
+                                defaultMessage='Users'
+                            />
+                        </button>
                     </div>
                 </div>
             );

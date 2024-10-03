@@ -140,6 +140,12 @@ const SearchBar: React.FunctionComponent<Props> = (props: Props): JSX.Element =>
                                 defaultMessage='FILES'
                             />
                         )}
+                        {props.searchType === 'users' && (
+                            <FormattedMessage
+                                id='search_bar.search_types.users'
+                                defaultMessage='USERS'
+                            />
+                        )}
                         <i
                             className='icon icon-close icon-12'
                             onMouseDown={() => {

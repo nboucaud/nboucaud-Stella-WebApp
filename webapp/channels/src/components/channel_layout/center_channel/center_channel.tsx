@@ -6,13 +6,13 @@ import React, {lazy} from 'react';
 import {Route, Switch, Redirect} from 'react-router-dom';
 
 import {makeAsyncComponent} from 'components/async_load';
+import BrowserView from 'components/browser_view';
 import ChannelIdentifierRouter from 'components/channel_layout/channel_identifier_router';
 import LoadingScreen from 'components/loading_screen';
 
 import {IDENTIFIER_PATH_PATTERN, ID_PATH_PATTERN, TEAM_NAME_PATH_PATTERN} from 'utils/path';
 
 import type {OwnProps, PropsFromRedux} from './index';
-import BrowserView from 'components/browser_view';
 
 const ChannelHeaderMobile = makeAsyncComponent('ChannelHeaderMobile', lazy(() => import('components/channel_header_mobile')));
 const GlobalThreads = makeAsyncComponent('GlobalThreads', lazy(() => import('components/threading/global_threads')),
