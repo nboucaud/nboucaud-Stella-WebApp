@@ -11,6 +11,8 @@
         pointer-events: none;
         object-fit: cover;
         object-position: center;
+    height: 100%;
+    width: 100%;
     }
 
     &__content {
@@ -71,4 +73,20 @@
             object-position: center;
         }
     }
+}
+
+.form-input{
+    width: 100%;
+}
+
+.form-input input{
+    width: 100%;
+}
+.button--tab{
+    border:none;
+    background-color: transparent;
+}
+.tabs-wrapper{
+    display: flex;
+    gap:10px;
 }

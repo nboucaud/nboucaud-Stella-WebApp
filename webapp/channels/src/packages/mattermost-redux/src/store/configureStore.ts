@@ -1,6 +1,4 @@
-// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
-// See LICENSE.txt for license information.
-
+// Import necessary modules
 import {composeWithDevTools} from '@redux-devtools/extension';
 import {
     applyMiddleware,
@@ -8,7 +6,8 @@ import {
 } from 'redux';
 import type {
     Reducer,
-    Store} from 'redux';
+    Store,
+} from 'redux';
 import thunk from 'redux-thunk';
 
 import type {GlobalState} from '@mattermost/types/store';
@@ -19,6 +18,7 @@ import reducerRegistry from './reducer_registry';
 import modalReducer from '../reducers/entities/modalReducer';
 import serviceReducers from '../reducers';
 import tabReducer from 'mattermost-redux/reducers/entities/tabReducer';
+import urlManagerReducer from '../../../../components/browser_view/browser/browser-state'; // Import your new reducer
 
 /**
  * Configures and constructs the redux store. Accepts the following parameters:
@@ -53,11 +53,12 @@ export default function configureStore<S extends GlobalState>({
 
     const enhancers = composeEnhancers(middleware);
 
-    // Add the modalReducer to the appReducers
+    // Add the urlManagerReducer to the appReducers
     const baseReducer = createReducer({
         ...serviceReducers,
         modal: modalReducer, 
-        tabs:tabReducer,
+        tabs: tabReducer,
+        urlManager: urlManagerReducer, // Add your URL manager reducer here
         ...appReducers,
     });
 

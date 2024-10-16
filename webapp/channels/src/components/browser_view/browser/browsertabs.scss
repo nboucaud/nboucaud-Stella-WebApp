@@ -1,0 +1,43 @@
+.custom-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #35363B;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    color: white;
+    height: 35px;
+    padding: 10px;
+    font-weight: 600;
+    flex: 0 1 200px;  /* Fixed initial width of 200px */
+    min-width: 50px; /* Tabs won't shrink below 100px */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflowed content */
+}
+.active-browser{
+    background-color: #4f5053;
+}
+.tabs-wrapper{
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    
+}
+.browser-header::-webkit-scrollbar {
+    display: none; /* Optional: Hide scrollbar */
+}
+
+.custom-tabs button {
+    background-color: transparent;
+    border: none;
+    flex-shrink: 0;
+}
+
+.icon{
+    flex-shrink: 0;
+}
+.tab-content-browser{
+    width: 100%;
+    height: 100%;
+}

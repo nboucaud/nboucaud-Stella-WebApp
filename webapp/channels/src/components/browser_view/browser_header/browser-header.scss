@@ -13,7 +13,7 @@
     font-weight: 600;
 }
 
-.browser-header{
+.browser-header {
     background-color: #1F2224;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -23,6 +23,8 @@
     justify-content: flex-start;
     align-items: center;
     gap: 15px;
+    flex-wrap: nowrap; /* Prevents wrapping to the next line */
+    overflow-x: auto; /* Adds horizontal scrolling when needed */
 }
 
 .icon {

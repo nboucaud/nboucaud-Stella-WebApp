@@ -1,9 +1,9 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import classNames from 'classnames';
-import React, {lazy, useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import classNames from "classnames";
+import React, { lazy, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { cleanUpStatusAndProfileFetchingPoll } from "mattermost-redux/actions/status_profile_polling";
 import { getIsUserStatusesConfigEnabled } from "mattermost-redux/selectors/entities/common";
@@ -27,13 +27,13 @@ import Pluggable from "plugins/pluggable";
 import { Constants } from "utils/constants";
 import { isInternetExplorer, isEdge } from "utils/user_agent";
 import IframeContainer from "components/browse_apps/iframe_container";
-import {makeAsyncComponent} from 'components/async_load';
-import CenterChannel from 'components/channel_layout/center_channel';
-import LoadingScreen from 'components/loading_screen';
-import ProductResults from 'components/shop/product_results';
-import Sidebar from 'components/sidebar';
-import CRTPostsChannelResetWatcher from 'components/threading/channel_threads/posts_channel_reset_watcher';
-import UnreadsStatusHandler from 'components/unreads_status_handler';
+import { makeAsyncComponent } from "components/async_load";
+import CenterChannel from "components/channel_layout/center_channel";
+import LoadingScreen from "components/loading_screen";
+import ProductResults from "components/shop/product_results";
+import Sidebar from "components/sidebar";
+import CRTPostsChannelResetWatcher from "components/threading/channel_threads/posts_channel_reset_watcher";
+import UnreadsStatusHandler from "components/unreads_status_handler";
 
 const ProductNoticesModal = makeAsyncComponent(
     "ProductNoticesModal",
@@ -45,10 +45,8 @@ const ResetStatusModal = makeAsyncComponent(
 );
 
 const BODY_CLASS_FOR_CHANNEL = ["app__body", "channel-view"];
-import notesIcon from '../../images/notes-icon.png';
-import storeIcon from '../../images/store.png';
-
-
+import notesIcon from "../../images/notes-icon.png";
+import storeIcon from "../../images/store.png";
 
 type Props = {
     shouldRenderCenterChannel: boolean;
@@ -127,33 +125,35 @@ export default function ChannelController(props: Props) {
                 className="channel-view"
                 data-testid="channel_view"
             >
-                <UnreadsStatusHandler/>
-                <ProductNoticesModal/>
-                <div className={classNames('container-fluid channel-view-inner')}>
+                <UnreadsStatusHandler />
+                <ProductNoticesModal />
+                <div
+                    className={classNames("container-fluid channel-view-inner")}
+                >
                     {openShop ? (
-                        <ProductResults/>
+                        <ProductResults />
                     ) : (
                         <>
                             {props.shouldRenderCenterChannel ? (
-                                <CenterChannel/>
+                                <CenterChannel />
                             ) : (
-                                <LoadingScreen centered={true}/>
+                                <LoadingScreen centered={true} />
                             )}
-                            <Pluggable pluggableName='Root'/>
-                            <ResetStatusModal/>
+                            <Pluggable pluggableName="Root" />
+                            <ResetStatusModal />
                         </>
                     )}
                 </div>
             </div>
-            <div className='home-screen-wrapper__sidebar right'>
-                <div className='top'>
+            <div className="home-screen-wrapper__sidebar right">
+                <div className="top">
                     <button>
-                        <img src={notesIcon}/>
+                        <img src={notesIcon} />
                     </button>
                 </div>
-                <div className='bottom'>
+                <div className="bottom">
                     <button onClick={() => setOpenShop(!openShop)}>
-                        <img src={storeIcon}/>
+                        <img src={storeIcon} />
                     </button>
                 </div>
             </div>
