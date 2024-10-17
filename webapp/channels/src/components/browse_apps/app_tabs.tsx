@@ -49,7 +49,7 @@ const Tabs: React.FC = () => {
                     onClick={() => handleTabClick(tab.uniqueId, tab.id)} // Use uniqueId
                     key={tab.uniqueId} // Use uniqueId as key
                     className={`app-tab-wrap ${
-                        activeTab === tab.uniqueId ? "active" : ""
+                        activeTab === tab.uniqueId ? "active-tab" : ""
                     }`}
                 >
                     <span className="app-heading-text">

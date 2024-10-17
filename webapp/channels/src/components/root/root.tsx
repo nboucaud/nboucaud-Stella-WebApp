@@ -4,7 +4,7 @@
 import classNames from "classnames";
 import deepEqual from "fast-deep-equal";
 import React, { lazy } from "react";
-import { Route, Switch, Redirect } from "react-router-dom";
+import { Route, Switch, Redirect, Link } from "react-router-dom";
 import type { RouteComponentProps } from "react-router-dom";
 import { RootState } from "../../types/appModal";
 import { ServiceEnvironment } from "@mattermost/types/config";
@@ -662,6 +662,12 @@ class Root extends React.PureComponent<Props, State> {
                                             )}
                                         />
                                     ))}
+
+                                    <LoggedInRoute
+                                        theme={this.props.theme}
+                                        path={`/:team(${TEAM_NAME_PATH_PATTERN})/shop`}
+                                        component={TeamController}
+                                    />
                                     <LoggedInRoute
                                         theme={this.props.theme}
                                         path={`/:team(${TEAM_NAME_PATH_PATTERN})`}
@@ -689,10 +695,10 @@ class Root extends React.PureComponent<Props, State> {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="bottom">
-                                    <button>
-                                        <img src={storeIcon} />
-                                    </button>
+                                <div className='bottom'>
+                                    <Link to={(url) => url.pathname.split('/').length > 1 ? `/${url.pathname.split('/')[1]}/shop` : '#shop'}>
+                                        <img src={storeIcon}/>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
