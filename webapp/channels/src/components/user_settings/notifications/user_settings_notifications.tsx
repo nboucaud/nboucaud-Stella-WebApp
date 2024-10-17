@@ -1064,14 +1064,6 @@ class NotificationsTab extends React.PureComponent<Props, State> {
                         threads={this.state.emailThreads || ''}
                     />
                     <div className='divider-light'/>
-                    {keywordsWithNotificationSection}
-                    {(!this.props.isEnterpriseOrCloudOrSKUStarterFree && this.props.isEnterpriseReady) && (
-                        <>
-                            <div className='divider-light'/>
-                            {keywordsWithHighlightSection}
-                        </>
-                    )}
-                    <div className='divider-light'/>
                     {!this.props.isCollapsedThreadsEnabled && (
                         <>
                             <div className='divider-light'/>
@@ -1082,14 +1074,6 @@ class NotificationsTab extends React.PureComponent<Props, State> {
                         <>
                             <div className='divider-light'/>
                             {autoResponderSection}
-                        </>
-                    )}
-
-                    {/*  We placed the disabled items in the last */}
-                    {(this.props.isEnterpriseOrCloudOrSKUStarterFree && this.props.isEnterpriseReady) && (
-                        <>
-                            <div className='divider-light'/>
-                            {keywordsWithHighlightSection}
                         </>
                     )}
                     <div className='divider-dark'/>

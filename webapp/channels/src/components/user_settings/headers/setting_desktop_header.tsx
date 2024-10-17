@@ -21,7 +21,6 @@ export default function SettingDesktopHeader(props: Props) {
             >
                 {props.text}
             </h3>
-            {props.info && <div className='userSettingDesktopHeaderInfo'>{props.info}</div>}
         </div>
     );
 }

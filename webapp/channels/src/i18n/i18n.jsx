@@ -32,12 +32,12 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 // should match the values in server/public/shared/i18n/i18n.go
 const languages = {
-    de: {
-        value: 'de',
-        name: 'Deutsch',
-        order: 0,
-        url: de,
-    },
+    // de: {
+    //     value: 'de',
+    //     name: 'Deutsch',
+    //     order: 0,
+    //     url: de,
+    // },
     en: {
         value: 'en',
         name: 'English (US)',
@@ -50,102 +50,102 @@ const languages = {
         order: 2,
         url: enAU,
     },
-    es: {
-        value: 'es',
-        name: 'Español (Beta)',
-        order: 3,
-        url: es,
-    },
-    fr: {
-        value: 'fr',
-        name: 'Français (Beta)',
-        order: 4,
-        url: fr,
-    },
-    it: {
-        value: 'it',
-        name: 'Italiano (Alpha)',
-        order: 5,
-        url: it,
-    },
-    hu: {
-        value: 'hu',
-        name: 'Magyar (Beta)',
-        order: 6,
-        url: hu,
-    },
-    nl: {
-        value: 'nl',
-        name: 'Nederlands',
-        order: 7,
-        url: nl,
-    },
-    pl: {
-        value: 'pl',
-        name: 'Polski',
-        order: 8,
-        url: pl,
-    },
-    'pt-BR': {
-        value: 'pt-BR',
-        name: 'Português (Brasil) (Alpha)',
-        order: 9,
-        url: ptBR,
-    },
-    ro: {
-        value: 'ro',
-        name: 'Română (Alpha)',
-        order: 10,
-        url: ro,
-    },
-    sv: {
-        value: 'sv',
-        name: 'Svenska',
-        order: 11,
-        url: sv,
-    },
-    vi: {
-        value: 'vi',
-        name: 'Tiếng Việt (Beta)',
-        order: 12,
-        url: vi,
-    },
-    tr: {
-        value: 'tr',
-        name: 'Türkçe',
-        order: 13,
-        url: tr,
-    },
-    bg: {
-        value: 'bg',
-        name: 'Български (Alpha)',
-        order: 14,
-        url: bg,
-    },
-    ru: {
-        value: 'ru',
-        name: 'Pусский',
-        order: 15,
-        url: ru,
-    },
-    uk: {
-        value: 'uk',
-        name: 'Yкраїнська (Alpha)',
-        order: 16,
-        url: uk,
-    },
-    fa: {
-        value: 'fa',
-        name: 'فارسی (Alpha)',
-        order: 17,
-        url: fa,
-    },
-    ko: {
-        value: 'ko',
-        name: '한국어 (Alpha)',
-        order: 18,
-        url: ko,
-    },
+    // es: {
+    //     value: 'es',
+    //     name: 'Español (Beta)',
+    //     order: 3,
+    //     url: es,
+    // },
+    // fr: {
+    //     value: 'fr',
+    //     name: 'Français (Beta)',
+    //     order: 4,
+    //     url: fr,
+    // },
+    // it: {
+    //     value: 'it',
+    //     name: 'Italiano (Alpha)',
+    //     order: 5,
+    //     url: it,
+    // },
+    // hu: {
+    //     value: 'hu',
+    //     name: 'Magyar (Beta)',
+    //     order: 6,
+    //     url: hu,
+    // },
+    // nl: {
+    //     value: 'nl',
+    //     name: 'Nederlands',
+    //     order: 7,
+    //     url: nl,
+    // },
+    // pl: {
+    //     value: 'pl',
+    //     name: 'Polski',
+    //     order: 8,
+    //     url: pl,
+    // },
+    // 'pt-BR': {
+    //     value: 'pt-BR',
+    //     name: 'Português (Brasil) (Alpha)',
+    //     order: 9,
+    //     url: ptBR,
+    // },
+    // ro: {
+    //     value: 'ro',
+    //     name: 'Română (Alpha)',
+    //     order: 10,
+    //     url: ro,
+    // },
+    // sv: {
+    //     value: 'sv',
+    //     name: 'Svenska',
+    //     order: 11,
+    //     url: sv,
+    // },
+    // vi: {
+    //     value: 'vi',
+    //     name: 'Tiếng Việt (Beta)',
+    //     order: 12,
+    //     url: vi,
+    // },
+    // tr: {
+    //     value: 'tr',
+    //     name: 'Türkçe',
+    //     order: 13,
+    //     url: tr,
+    // },
+    // bg: {
+    //     value: 'bg',
+    //     name: 'Български (Alpha)',
+    //     order: 14,
+    //     url: bg,
+    // },
+    // ru: {
+    //     value: 'ru',
+    //     name: 'Pусский',
+    //     order: 15,
+    //     url: ru,
+    // },
+    // uk: {
+    //     value: 'uk',
+    //     name: 'Yкраїнська (Alpha)',
+    //     order: 16,
+    //     url: uk,
+    // },
+    // fa: {
+    //     value: 'fa',
+    //     name: 'فارسی (Alpha)',
+    //     order: 17,
+    //     url: fa,
+    // },
+    // ko: {
+    //     value: 'ko',
+    //     name: '한국어 (Alpha)',
+    //     order: 18,
+    //     url: ko,
+    // },
     'zh-CN': {
         value: 'zh-CN',
         name: '中文 (简体) (Beta)',
@@ -158,12 +158,12 @@ const languages = {
         order: 20,
         url: zhTW,
     },
-    ja: {
-        value: 'ja',
-        name: '日本語',
-        order: 21,
-        url: ja,
-    },
+    // ja: {
+    //     value: 'ja',
+    //     name: '日本語',
+    //     order: 21,
+    //     url: ja,
+    // },
 };
 
 export function getAllLanguages() {

@@ -55,8 +55,6 @@ type Props = {
 };
 
 export default function ChannelController(props: Props) {
-    const [openShop, setOpenShop] = useState(false);
-
     const enabledUserStatuses = useSelector(getIsUserStatusesConfigEnabled);
     const dispatch = useDispatch();
 
@@ -130,31 +128,13 @@ export default function ChannelController(props: Props) {
                 <UnreadsStatusHandler/>
                 <ProductNoticesModal/>
                 <div className={classNames('container-fluid channel-view-inner')}>
-                    {openShop ? (
-                        <ProductResults/>
+                    {props.shouldRenderCenterChannel ? (
+                        <CenterChannel/>
                     ) : (
-                        <>
-                            {props.shouldRenderCenterChannel ? (
-                                <CenterChannel/>
-                            ) : (
-                                <LoadingScreen centered={true}/>
-                            )}
-                            <Pluggable pluggableName='Root'/>
-                            <ResetStatusModal/>
-                        </>
+                        <LoadingScreen centered={true}/>
                     )}
-                </div>
-            </div>
-            <div className='home-screen-wrapper__sidebar right'>
-                <div className='top'>
-                    <button>
-                        <img src={notesIcon}/>
-                    </button>
-                </div>
-                <div className='bottom'>
-                    <button onClick={() => setOpenShop(!openShop)}>
-                        <img src={storeIcon}/>
-                    </button>
+                    <Pluggable pluggableName='Root'/>
+                    <ResetStatusModal/>
                 </div>
             </div>
         </>
